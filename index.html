@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Agnes 墨客 - 终极小说工坊</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg-main: #f5f5f4; --bg-panel: #ffffff; --bg-reader: #fffdf9;
+        --text-main: #1c1917; --text-muted: #78716c; --accent: #4338ca;
+        --border: #e7e5e4; --reader-font-size: 1.125rem; --reader-line-height: 2;
+    }
+    body.dark-mode {
+        --bg-main: #1e1b1b; --bg-panel: #292524; --bg-reader: #1c1917;
+        --text-main: #e7e5e4; --text-muted: #a8a29e; --accent: #818cf8; --border: #44403c;
+    }
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Noto Sans SC', sans-serif; background-color: var(--bg-main); color: var(--text-main); transition: background-color 0.3s; }
+    .serif { font-family: 'Noto Serif SC', serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .paper-bg { background-color: var(--bg-reader); background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 24px 24px; }
+    body.dark-mode .paper-bg { background-image: radial-gradient(#2a2522 1px, transparent 1px); }
+    .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; opacity: 0.5; }
+    .novel-text { font-family: 'Noto Serif SC', serif; font-size: var(--reader-font-size); line-height: var(--reader-line-height); color: var(--text-main); }
+    .novel-text p { margin-bottom: 1.5rem; text-indent: 2em; cursor: pointer; border-radius: 4px; padding: 4px; }
+    .novel-text p:hover { background-color: rgba(99, 102, 241, 0.05); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .cursor-blink::after { content: '▋'; animation: blink 1s infinite; margin-left: 2px; font-weight: bold; color: var(--accent); }
+    .view { display: none; } .view.active { display: flex; }
+    @media (min-width: 1024px) { .view { display: flex !important; } .mobile-nav { display: none !important; } .mobile-only { display: none !important; } }
+    @media (max-width: 1023px) { .desktop-only { display: none !important; } }
+    .tab-active { background-color: var(--accent) !important; color: white !important; }
+    .icon-btn { color: var(--text-muted); padding: 0.5rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .icon-btn:hover { background-color: var(--border); color: var(--accent); }
+    .chat-bubble-user { background-color: var(--accent); color: white; }
+    .chat-bubble-ai { background-color: var(--bg-main); color: var(--text-main); border: 1px solid var(--border); }
+    .sub-tab-active { border-bottom: 2px solid var(--accent); color: var(--accent); font-weight: bold; }
+    .chapter-img { max-width: 100%; height: auto; max-height: 80vh; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 0 auto 2rem; display: block; cursor: pointer; }
+    /* Mobile Modal Bottom Sheet Style */
+    @media (max-width: 1023px) {
+        .modal-card { border-radius: 1rem 1rem 0 0 !important; margin-top: auto; width: 100% !important; max-width: 100% !important; max-height: 85vh !important; }
+        .modal-overlay { align-items: flex-end !important; padding: 0 !important; }
+    }
+</style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <header class="h-14 bg-[var(--bg-panel)] border-b border-[var(--border)] px-4 flex items-center justify-between z-20 flex-shrink-0">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-indigo-700 rounded-lg flex items-center justify-center text-white shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>
+            </div>
+            <h1 class="text-base font-bold serif">Agnes 墨客</h1>
+        </div>
+        <div class="flex items-center gap-1">
+            <button id="darkModeBtn" class="icon-btn"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg></button>
+            <button id="libraryBtn" class="text-sm font-medium px-3 py-1.5 bg-[var(--bg-main)] rounded-lg flex items-center gap-1.5">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                书库
+            </button>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- View: Create -->
+        <section id="view-create" class="view active w-full lg:w-96 lg:border-r border-[var(--border)] flex-col overflow-hidden bg-[var(--bg-panel)]">
+            <div class="p-4 overflow-y-auto custom-scroll h-full pb-24 lg:pb-4 space-y-4">
+                
+                <div class="flex justify-between items-center">
+                    <label class="block text-xs font-bold uppercase tracking-wider opacity-70">小说主题 / 设定 (含书名)</label>
+                    <button id="importTxtBtn" class="text-xs text-indigo-600 hover:underline">📥 导入TXT</button>
+                </div>
+                <textarea id="themeInput" rows="3" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="废土世界中的机械修仙者..."></textarea>
+                <input type="file" id="importTxtFile" class="hidden" accept=".txt">
+                
+                <button id="suggestBtn" class="w-full bg-indigo-50 text-indigo-700 py-2 rounded-lg text-sm flex justify-center items-center gap-1 disabled:opacity-50">
+                    <span id="suggestText">✨ 获取 AI 灵感</span>
+                </button>
+                <div id="suggestionBox" class="hidden p-3 bg-[var(--bg-main)] border border-dashed border-indigo-200 rounded-lg text-sm">
+                    <div class="flex flex-wrap gap-2 mb-2" id="titleOptions"></div>
+                    <p id="synopsisText" class="text-xs opacity-60 italic"></p>
+                </div>
+
+                <!-- 移动端折叠面板 -->
+                <details class="lg:hidden bg-[var(--bg-main)] rounded-lg p-3 border border-[var(--border)]">
+                    <summary class="text-xs font-bold cursor-pointer opacity-70">⚙️ 高级设定 (作者/角色/封面)</summary>
+                    <div class="mt-3 space-y-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="authorInput_m" class="p-2 bg-[var(--bg-panel)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="✍️ 作者笔名">
+                            <input type="text" id="tagsInput_m" class="p-2 bg-[var(--bg-panel)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="🏷️ 标签">
+                        </div>
+                        <textarea id="charactersInput_m" rows="2" class="w-full p-2 bg-[var(--bg-panel)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="👥 角色设定"></textarea>
+                        <div class="flex gap-2 items-center">
+                            <input type="file" id="coverRefInput_m" class="hidden" accept="image/*">
+                            <button onclick="$('coverRefInput_m').click()" class="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg">📤 上传封面参考</button>
+                            <img id="coverRefPreview_m" class="hidden w-10 h-14 object-cover rounded border">
+                        </div>
+                    </div>
+                </details>
+
+                <!-- 桌面端原面板 -->
+                <div class="hidden lg:grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-70">✍️ 作者笔名</label>
+                        <input type="text" id="authorInput" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="将显示在封面上">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-70">🏷️ 小说标签</label>
+                        <input type="text" id="tagsInput" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="如：科幻,冒险">
+                    </div>
+                </div>
+                <div class="hidden lg:block">
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-70">👥 角色设定</label>
+                    <textarea id="charactersInput" rows="2" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="主角：张三..."></textarea>
+                </div>
+                <div class="hidden lg:block">
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-70">🎨 封面参考与风格</label>
+                    <div class="flex gap-2 items-center mb-2">
+                        <input type="file" id="coverRefInput" class="hidden" accept="image/*">
+                        <button onclick="$('coverRefInput').click()" class="text-xs px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg flex-shrink-0">📤 上传参考图</button>
+                        <button id="openGalleryBtn" class="text-xs px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg flex-shrink-0">🖼️ 封面图库</button>
+                        <img id="coverRefPreview" class="hidden w-10 h-14 object-cover rounded border border-[var(--border)]">
+                        <button id="clearCoverRefBtn" class="hidden text-xs text-red-500">清除</button>
+                    </div>
+                    <textarea id="coverDescInput" rows="2" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="描述你想要的封面风格..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-70">章节数</label>
+                        <input type="number" id="chapterCount" value="3" min="1" max="20" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-70">字数/章</label>
+                        <select id="wordsPerChapter" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm">
+                            <option value="500">短</option>
+                            <option value="1000" selected>中</option>
+                            <option value="2000">长</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-1 opacity-70">文风</label>
+                        <select id="styleSelect" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm">
+                            <option value="通用小说">通用</option>
+                            <option value="古风仙侠">古风仙侠</option>
+                            <option value="硬科幻">硬科幻</option>
+                            <option value="轻小说">轻小说</option>
+                            <option value="悬疑推理">悬疑推理</option>
+                            <option value="王道热血">王道热血</option>
+                            <option value="爽文/打脸">爽文/打脸</option>
+                            <option value="脑洞/无厘头">脑洞/无厘头</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="lg:hidden fixed bottom-16 left-0 right-0 p-4 bg-[var(--bg-panel)] border-t border-[var(--border)] z-20">
+                    <button id="generateBtnM" class="w-full bg-indigo-700 text-white py-2.5 rounded-lg hover:bg-indigo-800 transition font-bold text-sm disabled:opacity-50 shadow-lg shadow-indigo-200/50">
+                        <span id="btnTextM">🚀 开始创作</span>
+                    </button>
+                </div>
+
+                <div class="hidden lg:block">
+                    <button id="generateBtn" class="w-full bg-indigo-700 text-white py-2.5 rounded-lg hover:bg-indigo-800 transition font-bold text-sm disabled:opacity-50 shadow-lg shadow-indigo-200/50">
+                        <span id="btnText">🚀 开始创作</span>
+                    </button>
+                </div>
+
+                <div id="statusText" class="text-xs text-red-500 text-center font-medium"></div>
+                <div id="statusHint" class="text-xs opacity-50 text-center"></div>
+            </div>
+        </section>
+
+        <!-- View: Read -->
+        <section id="view-read" class="view flex-1 flex-col overflow-hidden bg-[var(--bg-main)] relative">
+            <div class="bg-[var(--bg-panel)] border-b border-[var(--border)] px-4 py-2 flex items-center gap-4 flex-shrink-0">
+                <button onclick="switchView('view-create')" class="lg:hidden icon-btn"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button>
+                <img id="coverImage" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='70'><rect width='50' height='70' fill='%23e7e5e4'/></svg>" class="w-8 h-12 object-cover rounded shadow-sm flex-shrink-0">
+                <div class="flex-1 min-w-0">
+                    <h2 id="currentBookTitle" class="text-sm font-bold truncate">尚未选择书籍</h2>
+                    <p id="currentBookMeta" class="text-xs opacity-50 truncate">请在创作页生成</p>
+                </div>
+                <!-- 桌面端工具栏 -->
+                <div class="hidden lg:flex items-center gap-1">
+                    <button id="fontDecrement" class="icon-btn"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" /></svg></button>
+                    <button id="fontIncrement" class="icon-btn"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg></button>
+                    <div class="w-px h-5 bg-[var(--border)] mx-1"></div>
+                    <button id="exportTxtBtn" class="icon-btn" title="导出TXT"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></button>
+                    <button id="exportPdfBtn" class="icon-btn" title="导出PDF"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg></button>
+                    <button id="shareWebBtn" class="icon-btn" title="分享为网页"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></button>
+                    <button id="continueBtn" class="icon-btn" title="续写多章"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg></button>
+                    <button id="branchBtn" class="icon-btn" title="另存为副本/分支"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg></button>
+                    <button id="toolboxBtn" class="icon-btn" title="高级工具箱"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
+                    <button id="toggleMemoryBtn" class="icon-btn" title="记忆库"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></button>
+                </div>
+                <!-- 移动端三点菜单 -->
+                <button id="mobileMenuBtn" class="lg:hidden icon-btn"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h.01M12 12h.01M19 12h.01" /></svg></button>
+            </div>
+            <div class="bg-[var(--bg-main)] border-b border-[var(--border)] px-4 py-2 overflow-x-auto custom-scroll flex gap-2 flex-shrink-0" id="chapterTabs">
+                <span class="px-3 py-1 bg-[var(--border)] opacity-50 rounded-full text-xs">尚未生成</span>
+            </div>
+            <div class="flex-1 flex overflow-hidden relative">
+                <div class="flex-1 overflow-y-auto custom-scroll paper-bg">
+                    <div id="novelContent" class="max-w-2xl mx-auto p-6 md:p-12 pb-24 lg:pb-12">
+                        <div class="text-center opacity-40 mt-20">
+                            <h1 class="text-xl font-bold serif">期待你的大作</h1>
+                        </div>
+                    </div>
+                </div>
+                <aside id="memoryPanel" class="absolute lg:relative w-full lg:w-80 lg:border-l border-[var(--border)] bg-[var(--bg-panel)] h-full overflow-y-auto custom-scroll p-4 transform translate-x-full lg:translate-x-0 transition-transform z-30 shadow-2xl lg:shadow-none">
+                    <div class="flex border-b border-[var(--border)] mb-3">
+                        <button onclick="switchTab('outline')" id="tabBtnOutline" class="flex-1 py-2 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600">大纲</button>
+                        <button onclick="switchTab('memory')" id="tabBtnMemory" class="flex-1 py-2 text-xs font-bold border-b-2 border-transparent opacity-50">记忆库</button>
+                        <button onclick="switchTab('lore')" id="tabBtnLore" class="flex-1 py-2 text-xs font-bold border-b-2 border-transparent opacity-50">设定集</button>
+                    </div>
+                    <div id="tabContent">
+                        <div id="tabOutline" class="text-xs opacity-70">
+                            <textarea id="outlineEditor" class="hidden w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded text-xs h-64 outline-none" placeholder="编辑大纲..."></textarea>
+                            <div id="outlineViewer" class="whitespace-pre-wrap min-h-[100px]">尚未生成大纲...</div>
+                            <button id="editOutlineBtn" class="mt-2 text-xs text-indigo-600 hover:underline">✏️ 手动编辑大纲</button>
+                        </div>
+                        <div id="tabMemory" class="hidden text-xs whitespace-pre-wrap min-h-[100px] h-80 overflow-y-auto custom-scroll mono bg-slate-900 text-green-400 p-3 rounded-lg">> 等待写入...</div>
+                        <div id="tabLore" class="hidden text-xs space-y-3">
+                            <div class="flex border-b border-[var(--border)] pb-1 mb-2 gap-2">
+                                <button onclick="switchLoreTab('timeline')" class="lore-tab sub-tab-active text-stone-600 text-xs">时间线</button>
+                                <button onclick="switchLoreTab('locations')" class="lore-tab text-stone-600 text-xs opacity-50">地点</button>
+                                <button onclick="switchLoreTab('items')" class="lore-tab text-stone-600 text-xs opacity-50">物品</button>
+                                <button onclick="switchLoreTab('factions')" class="lore-tab text-stone-600 text-xs opacity-50">阵营</button>
+                            </div>
+                            <div id="loreTimeline" class="whitespace-pre-wrap min-h-[80px] opacity-70">尚未生成...</div>
+                            <div id="loreLocations" class="hidden whitespace-pre-wrap min-h-[80px] opacity-70">尚未生成...</div>
+                            <div id="loreItems" class="hidden whitespace-pre-wrap min-h-[80px] opacity-70">尚未生成...</div>
+                            <div id="loreFactions" class="hidden whitespace-pre-wrap min-h-[80px] opacity-70">尚未生成...</div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+            <button id="openChatBtn" class="absolute bottom-20 lg:bottom-4 right-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg z-20 hover:bg-indigo-700">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+            </button>
+            <div id="chatPanel" class="absolute bottom-0 left-0 right-0 lg:right-80 h-64 bg-[var(--bg-panel)] border-t flex flex-col transform translate-y-full transition-transform z-30 shadow-2xl">
+                <div class="p-2 border-b flex justify-between items-center bg-[var(--bg-main)]">
+                    <span class="text-xs font-bold flex items-center gap-1">💬 AI 修改助手 <span class="opacity-50">(点击段落可直接修改)</span></span>
+                    <button id="closeChatBtn" class="text-stone-400 hover:text-stone-600 p-1"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                </div>
+                <div id="chatMessages" class="flex-1 overflow-y-auto custom-scroll p-3 space-y-2 text-xs"></div>
+                <div class="p-2 border-t flex gap-2">
+                    <input id="chatInput" class="flex-1 p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-xs" placeholder="如：把这一章主角的名字改成李雷">
+                    <button id="sendChatBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold">执行修改</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-nav lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--bg-panel)] border-t border-[var(--border)] flex z-30 flex-shrink-0 h-16">
+        <button id="prevChapterBtn" class="flex-1 py-2 text-xs font-medium flex items-center justify-center gap-1 disabled:opacity-30">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            上一章
+        </button>
+        <button id="navCreate" class="flex-1 py-2 text-xs font-medium text-indigo-700 border-t-2 border-indigo-700 flex flex-col items-center justify-center">
+            <svg class="h-5 w-5 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+            创作
+        </button>
+        <button id="navRead" class="flex-1 py-2 text-xs font-medium opacity-50 border-t-2 border-transparent flex flex-col items-center justify-center">
+            <svg class="h-5 w-5 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+            阅读
+        </button>
+        <button id="nextChapterBtn" class="flex-1 py-2 text-xs font-medium flex items-center justify-center gap-1 disabled:opacity-30">
+            下一章
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu Modal -->
+    <div id="mobileMenuModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center p-0 modal-overlay">
+        <div class="bg-[var(--bg-panel)] w-full rounded-t-2xl p-4 flex flex-col gap-2 modal-card">
+            <h3 class="text-sm font-bold opacity-70 mb-2">工具与导出</h3>
+            <div class="grid grid-cols-4 gap-2 text-center text-xs">
+                <button id="mFontDec" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" /></svg>A-</button>
+                <button id="mFontInc" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>A+</button>
+                <button id="mMemory" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>记忆库</button>
+                <button id="mDark" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>夜间</button>
+                <button id="mContinue" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>续写</button>
+                <button id="mBranch" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>分支</button>
+                <button id="mToolbox" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>工具箱</button>
+                <button id="mShare" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>分享</button>
+                <button id="mPdf" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>导PDF</button>
+                <button id="mTxt" class="p-2 bg-[var(--bg-main)] rounded-lg flex flex-col items-center gap-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>导TXT</button>
+            </div>
+            <button id="closeMobileMenuBtn" class="mt-2 w-full py-2 bg-[var(--bg-main)] rounded-lg text-sm">取消</button>
+        </div>
+    </div>
+
+    <!-- Library Modal -->
+    <div id="libraryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-[var(--bg-panel)] rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col modal-card">
+            <div class="p-4 border-b border-[var(--border)] flex justify-between items-center">
+                <h2 class="text-lg font-bold serif">📚 我的书库</h2>
+                <div class="flex items-center gap-2">
+                    <select id="sortLibrary" class="text-xs p-1 bg-[var(--bg-main)] border border-[var(--border)] rounded">
+                        <option value="updated">最近更新</option>
+                        <option value="created">创建时间</option>
+                        <option value="chapters">章节数</option>
+                    </select>
+                    <button id="closeLibraryBtn" class="opacity-50 hover:opacity-100 p-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                </div>
+            </div>
+            <div id="libraryContent" class="p-4 overflow-y-auto custom-scroll flex-1"></div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alertModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-[var(--bg-panel)] rounded-2xl shadow-xl w-full max-w-sm p-6 text-center modal-card">
+            <h3 id="alertTitle" class="text-lg font-bold mb-2">警告</h3>
+            <p id="alertMsg" class="text-sm opacity-70 mb-6">确定要执行此操作吗？</p>
+            <div class="flex gap-3">
+                <button id="alertCancel" class="flex-1 py-2 bg-[var(--bg-main)] rounded-lg text-sm">取消</button>
+                <button id="alertConfirm" class="flex-1 py-2 bg-red-500 text-white rounded-lg text-sm">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbox Modal -->
+    <div id="toolboxModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-[var(--bg-panel)] rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col modal-card">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h2 class="text-lg font-bold serif">🧰 高级工具箱</h2>
+                <button id="closeToolboxBtn" class="opacity-50 hover:opacity-100 p-1"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div class="p-4 grid grid-cols-2 gap-3 overflow-y-auto custom-scroll">
+                <button onclick="toolAction('plot_holes')" class="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm text-left">🔍 剧情漏洞检测</button>
+                <button onclick="toolAction('suggest_plot')" class="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm text-left">🤔 AI 建议下一步剧情</button>
+                <button onclick="toolAction('generate_synopsis')" class="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm text-left">📝 生成内容简介</button>
+                <button onclick="toolAction('name_master')" class="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm text-left">📛 起名大师</button>
+                <button onclick="toolAction('relationship_graph')" class="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm text-left">🕸️ 生成角色关系图谱</button>
+                <button onclick="toolAction('if_line')" class="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm text-left">🔄 IF线创作</button>
+                <button onclick="toolAction('multi_ending')" class="p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm text-left">🎬 多结局生成</button>
+            </div>
+            <div id="toolResult" class="p-4 border-t text-xs whitespace-pre-wrap hidden max-h-40 overflow-y-auto custom-scroll"></div>
+        </div>
+    </div>
+
+    <!-- Branch & Continue Modals -->
+    <div id="branchModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-[var(--bg-panel)] rounded-2xl shadow-xl w-full max-w-md p-6 modal-card">
+            <h2 class="text-lg font-bold mb-2">🌿 创建剧情分支</h2>
+            <p class="text-xs opacity-60 mb-4">将当前小说另存为副本，并输入新的剧情走向。</p>
+            <textarea id="branchThemeInput" rows="3" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm mb-4" placeholder="例如：主角在这一章选择了投降..."></textarea>
+            <div class="flex gap-2">
+                <button id="cancelBranchBtn" class="flex-1 py-2 bg-[var(--bg-main)] rounded-lg text-sm">取消</button>
+                <button id="confirmBranchBtn" class="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm">创建并续写</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="continueModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-[var(--bg-panel)] rounded-2xl shadow-xl w-full max-w-md p-6 modal-card">
+            <h2 class="text-lg font-bold mb-2">➕ 续写章节</h2>
+            <input type="number" id="continueCountInput" value="1" min="1" max="10" class="w-full p-2 mb-4 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm">
+            <div class="flex gap-2">
+                <button id="cancelContinueBtn" class="flex-1 py-2 bg-[var(--bg-main)] rounded-lg text-sm">取消</button>
+                <button id="confirmContinueBtn" class="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm">开始续写</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Options Menu -->
+    <div id="imageOptionsMenu" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-[var(--bg-panel)] rounded-2xl shadow-xl w-full max-w-md p-6 modal-card">
+            <h2 class="text-lg font-bold mb-4">🖼️ 管理插图</h2>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button id="downloadImgBtn" class="py-2 bg-indigo-600 text-white rounded-lg text-sm">⬇️ 下载本张</button>
+                <button id="redoImgBtn" class="py-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm">🔄 重做本张</button>
+                <button id="uploadReplaceBtn" class="py-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm">📤 上传替换本张</button>
+                <button id="addNewImgBtn" class="py-2 bg-green-600 text-white rounded-lg text-sm">➕ 添加新图</button>
+                <button id="deleteImgBtn" class="py-2 col-span-2 bg-red-100 text-red-600 rounded-lg text-sm">🗑️ 删除本张</button>
+            </div>
+            <input type="file" id="imgUploadInput" class="hidden" accept="image/*">
+            <div id="redoPromptBox" class="hidden mb-4">
+                <textarea id="imgPromptInput" rows="4" class="w-full p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg outline-none text-sm" placeholder="输入新的英文提示词..."></textarea>
+                <button id="confirmRedoBtn" class="w-full mt-2 py-2 bg-green-600 text-white rounded-lg text-sm">确认重新生成</button>
+            </div>
+            <button id="closeImgMenuBtn" class="w-full py-2 bg-[var(--bg-main)] rounded-lg text-sm mt-2">关闭</button>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-[var(--bg-panel)] rounded-2xl shadow-xl w-full max-w-md p-6 text-center modal-card">
+            <h2 class="text-lg font-bold mb-4">📤 分享小说</h2>
+            <div id="shareLoading" class="py-8">
+                <div class="loader-circle mx-auto mb-3"></div>
+                <p class="text-sm opacity-70">正在生成链接...</p>
+            </div>
+            <div id="shareResult" class="hidden">
+                <p class="text-sm mb-3 text-green-600 font-bold">✅ 链接生成成功！复制发给朋友吧：</p>
+                <input id="shareLinkInput" type="text" readonly class="w-full p-2 mb-4 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-xs text-center outline-none">
+                <button id="copyShareLinkBtn" class="w-full py-2 bg-indigo-600 text-white rounded-lg text-sm mb-2">复制链接</button>
+                <button id="downloadHtmlBtn" class="w-full py-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm">下载 HTML 文件备用</button>
+            </div>
+            <button id="closeShareBtn" class="hidden w-full py-2 mt-2 text-stone-500 text-xs">关闭</button>
+        </div>
+    </div>
+
+<script>
+const API_KEY = 'sk-3ddxdulMCfy9pxxKG3tftpL7ulMtQGQS19Tk9rqM6oL7xfXM';
+const TEXT_ENDPOINT = 'https://apihub.agnes-ai.com/v1/chat/completions';
+const IMAGE_ENDPOINT = 'https://apihub.agnes-ai.com/v1/images/generations';
+const STORAGE_KEY = 'agnes_novels_library_v12';
+const COVER_GALLERY_KEY = 'agnes_cover_gallery';
+
+const storage = {
+    available: false, data: {},
+    init() { try { localStorage.setItem('__t__', '1'); localStorage.removeItem('__t__'); this.available = true; } catch (e) {} },
+    get(k) { return this.available ? localStorage.getItem(k) : this.data[k]; },
+    set(k, v) { if (this.available) localStorage.setItem(k, v); else this.data[k] = v; }
+};
+storage.init();
+
+const state = {
+    currentNovelId: null, isGenerating: false, currentChapterIndex: -1,
+    title: '', theme: '', synopsis: '', author: '', characters: '', coverUrl: '', coverRef: null,
+    tags: '', style: '通用小说',
+    outline: '', lorebook: '', chapters: [], summaries: [],
+    totalChapters: 3, wordsPerChapter: 1000,
+    timeline: '', locations: '', items: '', factions: '',
+    currentRedoChapterIdx: -1, currentRedoImgIdx: -1, currentShareHtml: null
+};
+
+const $ = id => document.getElementById(id);
+mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+
+function showAlert(msg, onConfirm) {
+    $('alertMsg').innerText = msg;
+    $('alertModal').classList.remove('hidden');
+    $('alertConfirm').onclick = () => { $('alertModal').classList.add('hidden'); if (onConfirm) onConfirm(); };
+    $('alertCancel').onclick = () => $('alertModal').classList.add('hidden');
+}
+
+function switchView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    $(viewId).classList.add('active');
+    if (window.innerWidth < 1024) {
+        if (viewId === 'view-create') {
+            $('navCreate').classList.add('text-indigo-700','border-indigo-700'); $('navCreate').classList.remove('opacity-50','border-transparent');
+            $('navRead').classList.remove('text-indigo-700','border-indigo-700'); $('navRead').classList.add('opacity-50','border-transparent');
+        } else {
+            $('navRead').classList.add('text-indigo-700','border-indigo-700'); $('navRead').classList.remove('opacity-50','border-transparent');
+            $('navCreate').classList.remove('text-indigo-700','border-indigo-700'); $('navCreate').classList.add('opacity-50','border-transparent');
+            $('memoryPanel').classList.add('translate-x-full');
+        }
+    }
+}
+function switchTab(tabName) {
+    const caps = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+    ['Outline', 'Memory', 'Lore'].forEach(t => {
+        $('tab'+t).classList.add('hidden'); $('tabBtn'+t).classList.remove('border-indigo-600', 'text-indigo-600'); $('tabBtn'+t).classList.add('opacity-50', 'border-transparent');
+    });
+    $('tab'+caps).classList.remove('hidden'); $('tabBtn'+caps).classList.add('border-indigo-600', 'text-indigo-600'); $('tabBtn'+caps).classList.remove('opacity-50', 'border-transparent');
+}
+function switchLoreTab(tabName) {
+    ['Timeline', 'Locations', 'Items', 'Factions'].forEach(t => {
+        $('lore'+t).classList.add('hidden');
+        const btn = document.querySelector(`.lore-tab[onclick*="${t.toLowerCase()}"]`);
+        if(btn) { btn.classList.remove('sub-tab-active'); btn.classList.add('opacity-50'); }
+    });
+    $('lore'+tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('hidden');
+    const activeBtn = document.querySelector(`.lore-tab[onclick*="${tabName}"]`);
+    if(activeBtn) { activeBtn.classList.add('sub-tab-active'); activeBtn.classList.remove('opacity-50'); }
+}
+
+async function callTextAPIStream(systemPrompt, userPrompt, temp, onChunk) {
+    const response = await fetch(TEXT_ENDPOINT, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'agnes-2.0-flash', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: temp, stream: true })
+    });
+    if (!response.ok) throw new Error(`API Err ${response.status}`);
+    const reader = response.body.getReader(); const decoder = new TextDecoder();
+    let buffer = '', fullText = '';
+    while (true) {
+        const { done, value } = await reader.read(); if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n'); buffer = lines.pop();
+        for (const line of lines) {
+            if (line.startsWith('data: ')) {
+                const jsonStr = line.replace('data: ', '').trim();
+                if (jsonStr === '[DONE]' || jsonStr === '') continue;
+                try { const json = JSON.parse(jsonStr); const chunk = json.choices?.[0]?.delta?.content || ''; if (chunk) { fullText += chunk; onChunk(fullText); } } catch (e) {}
+            }
+        }
+    }
+    return fullText;
+}
+async function callTextAPI(systemPrompt, userPrompt, temp = 0.7) {
+    const res = await fetch(TEXT_ENDPOINT, {
+        method: 'POST', headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'agnes-2.0-flash', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: temp })
+    });
+    if (!res.ok) throw new Error(`API Err ${res.status}`);
+    return (await res.json()).choices[0].message.content;
+}
+async function callImageAPI(prompt, refImage = null) {
+    const body = { model: 'agnes-image-2.1-flash', prompt, size: '1024x1024', extra_body: { response_format: 'url' } };
+    if (refImage) body.extra_body.image = [refImage];
+    const res = await fetch(IMAGE_ENDPOINT, { method: 'POST', headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error(`Img Err ${res.status}`);
+    return (await res.json()).data[0].url;
+}
+function parseChapter(text) {
+    const markers = ['### Summary', '### 摘要', '## 摘要', '**摘要**'];
+    for (let marker of markers) {
+        let idx = text.toLowerCase().indexOf(marker.toLowerCase());
+        if (idx !== -1) return { content: text.substring(0, idx).trim(), summary: text.substring(idx + marker.length).trim().replace(/^[:：\s\n]+/, '') };
+    }
+    const p = text.split('\n').filter(p => p.trim());
+    return p.length > 1 ? { content: p.slice(0,-1).join('\n').trim(), summary: p[p.length-1].trim() } : { content: text, summary: text.substring(0,50)+"..." };
+}
+function resizeImage(file, maxSize, callback) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            let canvas = document.createElement('canvas'); let width = img.width, height = img.height;
+            if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
+            else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
+            canvas.width = width; canvas.height = height; canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            callback(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function saveNovelToLibrary() {
+    if (!state.chapters.length && !state.outline) return;
+    let lib = JSON.parse(storage.get(STORAGE_KEY) || '[]');
+    const data = {
+        id: state.currentNovelId, title: state.title, theme: state.theme, synopsis: state.synopsis, 
+        author: state.author, characters: state.characters, coverUrl: state.coverUrl, tags: state.tags, style: state.style,
+        outline: state.outline, lorebook: state.lorebook, chapters: state.chapters, summaries: state.summaries, 
+        totalChapters: state.totalChapters, updatedAt: new Date().toLocaleString('zh-CN'),
+        createdAt: lib.find(n=>n.id===state.currentNovelId)?.createdAt || new Date().toLocaleString('zh-CN'),
+        timeline: state.timeline, locations: state.locations, items: state.items, factions: state.factions
+    };
+    const idx = lib.findIndex(n => n.id === state.currentNovelId);
+    if (idx !== -1) lib[idx] = data; else lib.unshift(data);
+    storage.set(STORAGE_KEY, JSON.stringify(lib));
+}
+window.loadNovelFromLibrary = function(id) {
+    const lib = JSON.parse(storage.get(STORAGE_KEY) || '[]'); const n = lib.find(b => b.id === id); if (!n) return;
+    Object.assign(state, { 
+        currentNovelId: n.id, title: n.title, theme: n.theme, synopsis: n.synopsis, author: n.author || '', 
+        characters: n.characters || '', coverUrl: n.coverUrl, tags: n.tags || '', style: n.style || '通用小说',
+        outline: n.outline, lorebook: n.lorebook || '', chapters: n.chapters || [], summaries: n.summaries || [], 
+        totalChapters: n.totalChapters || n.chapters.length, currentChapterIndex: n.chapters.length > 0 ? 0 : -1, 
+        timeline: n.timeline || '', locations: n.locations || '', items: n.items || '', factions: n.factions || '', isGenerating: false 
+    });
+    $('themeInput').value = n.theme; $('authorInput').value = state.author; $('charactersInput').value = state.characters;
+    $('tagsInput').value = n.tags; $('styleSelect').value = state.style; $('chapterCount').value = state.totalChapters;
+    if($('authorInput_m')) $('authorInput_m').value = state.author;
+    if($('tagsInput_m')) $('tagsInput_m').value = n.tags;
+    if($('charactersInput_m')) $('charactersInput_m').value = state.characters;
+    $('coverImage').src = n.coverUrl || ''; $('currentBookTitle').innerText = n.title; 
+    $('currentBookMeta').innerText = state.author ? `作者: ${state.author} · ${state.tags}` : (n.synopsis || n.theme);
+    updateUI(); renderNovelContent(); $('libraryModal').classList.add('hidden'); switchView('view-read');
+}
+window.deleteNovel = function(e, id) {
+    e.stopPropagation();
+    showAlert('确定要永久删除这部小说吗？此操作不可撤销。', () => {
+        let lib = JSON.parse(storage.get(STORAGE_KEY) || '[]'); lib = lib.filter(n => n.id !== id); storage.set(STORAGE_KEY, JSON.stringify(lib)); renderLibrary();
+    });
+}
+function renderLibrary() {
+    let lib = JSON.parse(storage.get(STORAGE_KEY) || '[]');
+    const sortBy = $('sortLibrary').value;
+    if (sortBy === 'created') lib.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    else if (sortBy === 'chapters') lib.sort((a,b) => b.chapters.length - a.chapters.length);
+    else lib.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    $('libraryContent').innerHTML = lib.length === 0 ? '<p class="opacity-40 text-center mt-10">书库空空如也</p>' : lib.map(n => `
+        <div class="flex items-center gap-4 p-3 bg-[var(--bg-panel)] border border-[var(--border)] rounded-xl mb-3 cursor-pointer hover:shadow-md" onclick="loadNovelFromLibrary('${n.id}')">
+            <img src="${n.coverUrl || ''}" class="w-12 h-16 object-cover rounded shadow-sm bg-gray-200">
+            <div class="flex-1 overflow-hidden">
+                <h3 class="font-bold truncate">${n.title}</h3>
+                <p class="text-xs opacity-50 truncate">${n.author ? '作者: '+n.author+' · ' : ''}${n.tags || ''}</p>
+                <p class="text-xs opacity-40 mt-1">${n.chapters.length} 章 · ${n.updatedAt}</p>
+            </div>
+            <button onclick="deleteNovel(event, '${n.id}')" class="opacity-30 hover:text-red-500 hover:opacity-100 p-2"><svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+        </div>`).join('');
+}
+
+function updateUI() {
+    $('outlineViewer').innerText = state.outline || '尚未生成...';
+    $('tabMemory').innerHTML = state.summaries.length === 0 ? '> 等待写入...' : state.summaries.map((s, i) => `<span class="text-purple-400">> 第${i+1}章:</span>\n${s}`).join('\n\n');
+    $('loreTimeline').innerText = state.timeline || '尚未生成...'; $('loreLocations').innerText = state.locations || '尚未生成...';
+    $('loreItems').innerText = state.items || '尚未生成...'; $('loreFactions').innerText = state.factions || '尚未生成...';
+    $('chapterTabs').innerHTML = '';
+    if (state.chapters.length === 0) { $('chapterTabs').innerHTML = '<span class="px-3 py-1 bg-[var(--border)] opacity-50 rounded-full text-xs">尚未生成</span>'; return; }
+    state.chapters.forEach((ch, idx) => {
+        const tab = document.createElement('button');
+        tab.className = `px-3 py-1 rounded-full text-xs whitespace-nowrap transition ${state.currentChapterIndex === idx ? 'tab-active' : 'bg-[var(--bg-panel)] border border-[var(--border)]'}`;
+        tab.innerText = `第 ${idx + 1} 章`;
+        tab.onclick = () => { state.currentChapterIndex = idx; renderNovelContent(); updateUI(); };
+        $('chapterTabs').appendChild(tab);
+    });
+}
+function renderNovelContent() {
+    $('currentBookTitle').innerText = state.title || '尚未选择';
+    $('currentBookMeta').innerText = state.author ? `作者: ${state.author} · ${state.tags}` : (state.synopsis || state.theme || '');
+    if (state.currentChapterIndex === -1 || !state.chapters[state.currentChapterIndex]) return;
+    const ch = state.chapters[state.currentChapterIndex];
+    const images = ch.images || (ch.image ? [ch.image] : []);
+    const imagesHtml = images.map((imgUrl, imgIdx) => 
+        `<img src="${imgUrl}" onclick="showImageOptions(${state.currentChapterIndex}, ${imgIdx})" class="chapter-img fade-in-up" title="点击管理图片">`
+    ).join('');
+    const ps = ch.content.split('\n').map(p => p.trim()).filter(p => p);
+    const html = ps.map((p, i) => `<p class="fade-in-up" onclick="openChatWithPara(${i})">${p}</p>`).join('');
+    $('novelContent').innerHTML = `
+        <h2 class="text-2xl font-bold mb-6 text-indigo-700 border-b border-[var(--border)] pb-4 fade-in-up serif text-center">第 ${state.currentChapterIndex + 1} 章</h2>
+        ${imagesHtml}
+        <div class="novel-text">${html}</div>
+    `;
+    
+    // 更新移动端上下章按钮状态
+    const prevBtn = $('prevChapterBtn'), nextBtn = $('nextChapterBtn');
+    prevBtn.disabled = state.currentChapterIndex <= 0;
+    nextBtn.disabled = state.currentChapterIndex >= state.chapters.length - 1;
+}
+function openChatWithPara(idx) {
+    $('chatPanel').classList.remove('translate-y-full'); $('chatInput').focus();
+    $('chatInput').placeholder = `输入指令修改第 ${idx+1} 段...`; $('chatInput').dataset.paraIdx = idx;
+}
+
+function handleCoverRefUpload(file) {
+    if (!file) return;
+    resizeImage(file, 1024, (base64) => {
+        state.coverRef = base64;
+        $('coverRefPreview').src = base64; $('coverRefPreview').classList.remove('hidden');
+        $('clearCoverRefBtn').classList.remove('hidden');
+        if($('coverRefPreview_m')) { $('coverRefPreview_m').src = base64; $('coverRefPreview_m').classList.remove('hidden'); }
+    });
+}
+ $('coverRefInput').addEventListener('change', (e) => handleCoverRefUpload(e.target.files[0]));
+if($('coverRefInput_m')) $('coverRefInput_m').addEventListener('change', (e) => handleCoverRefUpload(e.target.files[0]));
+
+ $('clearCoverRefBtn').addEventListener('click', () => {
+    state.coverRef = null; $('coverRefInput').value = '';
+    $('coverRefPreview').classList.add('hidden'); $('clearCoverRefBtn').classList.add('hidden');
+    if($('coverRefPreview_m')) $('coverRefPreview_m').classList.add('hidden');
+});
+ $('openGalleryBtn').addEventListener('click', () => {
+    const gallery = JSON.parse(storage.get(COVER_GALLERY_KEY) || '[]');
+    if (gallery.length === 0) return alert('图库为空，先生成几张封面吧！');
+    let html = '<div class="grid grid-cols-3 gap-2">';
+    gallery.forEach(url => { html += `<img src="${url}" class="w-full h-32 object-cover cursor-pointer rounded hover:opacity-80" onclick="useGalleryCover('${url}')">`; });
+    html += '</div>';
+    $('toolResult').innerHTML = html; $('toolResult').classList.remove('hidden'); $('toolboxModal').classList.remove('hidden');
+});
+window.useGalleryCover = function(url) {
+    state.coverUrl = url; $('coverImage').src = url; saveNovelToLibrary(); $('toolboxModal').classList.add('hidden');
+};
+
+function getStyleInstruction(style) {
+    if (style === '爽文/打脸') return '采用极致爽文写法，节奏极快，主角全程碾压，频繁出现打脸、扮猪吃虎情节，不要纠结细节，直奔爽点。';
+    if (style === '脑洞/无厘头') return '采用天马行空的脑洞写法，不按常理出牌，可以有降智或反逻辑的搞笑情节，注重猎奇和反转。';
+    return `文风为${style}。`;
+}
+
+// 封面提示词：要求带文字
+function getCoverPrompt(title, author, theme, styleDesc, refImage) {
+    const compositions = ['close-up portrait', 'wide landscape', 'dynamic action shot', 'symmetrical composition', 'dramatic low angle', 'bird\'s eye view'];
+    const lightings = ['cinematic lighting', 'neon glow', 'soft morning light', 'dramatic rim lighting', 'moody shadows', 'volumetric lighting'];
+    const palettes = ['vibrant colors', 'monochromatic', 'warm tones', 'cool tones', 'high contrast'];
+    const comp = compositions[Math.floor(Math.random() * compositions.length)];
+    const light = lightings[Math.floor(Math.random() * lightings.length)];
+    const palette = palettes[Math.floor(Math.random() * palettes.length)];
+    const authorText = author ? ` and author name "${author}"` : '';
+    const textReq = `with beautiful typography of the title "${title}"${authorText}`;
+    if (refImage) {
+        return `Transform this image into a stunning book cover. Theme: ${theme}. Style: ${styleDesc}. Composition: ${comp}, Lighting: ${light}. ${textReq}. Highly detailed.`;
+    }
+    return `A breathtaking and unique book cover illustration. Theme: ${theme}. Art style: ${styleDesc}. Composition: ${comp}, Lighting: ${light}. ${textReq}. Masterpiece, digital art.`;
+}
+
+// 章节插图提示词：绝对不允许有文字
+function getChapterImgPrompt(summary) {
+    return `Illustration for novel chapter. Scene: ${summary}. Style: digital painting, highly detailed, unique composition. Absolutely no text, no words, no letters, no watermark, no typography.`;
+}
+
+async function generateNovel(isContinue = false, branchTheme = null, chaptersToGen = 1) {
+    if (state.isGenerating) return;
+    if (!isContinue) {
+        state.theme = $('themeInput').value.trim(); if (!state.theme) return alert('请输入主题！');
+        state.totalChapters = parseInt($('chapterCount').value); state.wordsPerChapter = parseInt($('wordsPerChapter').value);
+        
+        // 统一读取桌面/移动端输入
+        state.author = $('authorInput').value.trim() || ($('authorInput_m') ? $('authorInput_m').value.trim() : '');
+        state.characters = $('charactersInput').value || ($('charactersInput_m') ? $('charactersInput_m').value : '');
+        state.tags = $('tagsInput').value.trim() || ($('tagsInput_m') ? $('tagsInput_m').value.trim() : '');
+        state.style = $('styleSelect').value;
+        
+        // 从设定中提取书名，如果没有则自动生成
+        const titleMatch = state.theme.match(/书名[：:]\s*(.+)/);
+        if (titleMatch) {
+            state.title = titleMatch[1].trim();
+        } else if (!state.title) {
+            state.title = `《${state.theme.substring(0, 10)}》`; 
+        }
+        
+        state.outline = ''; state.lorebook = ''; state.summaries = []; state.chapters = []; state.currentChapterIndex = -1; state.coverUrl = '';
+        state.timeline = ''; state.locations = ''; state.items = ''; state.factions = '';
+        state.currentNovelId = Date.now().toString();
+    } else { state.totalChapters = state.chapters.length + chaptersToGen; }
+    if (branchTheme) state.theme = branchTheme;
+    
+    state.isGenerating = true; 
+    $('generateBtn').disabled = true; $('suggestBtn').disabled = true;
+    if($('generateBtnM')) $('generateBtnM').disabled = true;
+    
+    $('btnText').innerText = '生成中...'; $('btnTextM').innerText = '生成中...';
+    $('statusText').innerText = ''; $('statusHint').innerText = '';
+    switchView('view-read');
+    
+    try {
+        let coverPromise = null;
+        if (!isContinue && !state.outline) {
+            $('statusHint').innerText = '构思大纲与世界设定...';
+            if (!state.coverUrl) {
+                const styleDesc = $('coverDescInput').value.trim() || 'Cinematic, digital art, masterpiece';
+                const coverPrompt = getCoverPrompt(state.title, state.author, state.theme, styleDesc, state.coverRef);
+                coverPromise = callImageAPI(coverPrompt, state.coverRef);
+            }
+            const styleInst = getStyleInstruction(state.style);
+            const setupPrompt = `小说《${state.title}》主题:${state.theme}。${styleInst} 角色:${state.characters || '无'}。
+            请直接输出以下内容，用明确的标题分隔：
+            ### 大纲\n${state.totalChapters}章大纲\n### 设定\n100字世界观设定\n### 时间线\n故事的时间轴\n### 地点\n重要场景列表\n### 物品\n关键道具列表\n### 阵营\n势力分布`;
+            const setupText = await callTextAPI('资深小说编辑', setupPrompt, 0.7);
+            const extract = (title) => {
+                const regex = new RegExp(`### ${title}\\n([\\s\\S]*?)(?=### |$)`, 'i');
+                const match = setupText.match(regex); return match ? match[1].trim() : '无';
+            };
+            state.outline = extract('大纲'); state.lorebook = extract('设定'); state.timeline = extract('时间线');
+            state.locations = extract('地点'); state.items = extract('物品'); state.factions = extract('阵营');
+            updateUI(); saveNovelToLibrary();
+        }
+        if (coverPromise) {
+            try { 
+                state.coverUrl = await coverPromise; $('coverImage').src = state.coverUrl; 
+                let gallery = JSON.parse(storage.get(COVER_GALLERY_KEY) || '[]');
+                gallery.unshift(state.coverUrl); if(gallery.length > 12) gallery.pop();
+                storage.set(COVER_GALLERY_KEY, JSON.stringify(gallery)); saveNovelToLibrary(); 
+            } catch(e) {}
+        }
+
+        const startIdx = isContinue ? state.chapters.length : 0;
+        const endIdx = state.totalChapters;
+        for (let i = startIdx; i < endIdx; i++) {
+            $('statusHint').innerText = `撰写第 ${i + 1} 章 (流式输出中)...`;
+            const styleInst = getStyleInstruction(state.style);
+            // 修复题材崩坏：加强约束
+            let sys = `小说《${state.title}》文风:${state.style}\n大纲:${state.outline}\n设定:${state.lorebook}\n角色:${state.characters || '无'}\n【核心约束】必须严格遵循主题设定的背景题材（如都市、科幻、古风等），绝不允许在都市题材中出现古风等串台描写！\n`;
+            if (state.summaries.length > 0) sys += `前文摘要:${state.summaries.join('; ')}\n`;
+            sys += `任务:写第${i+1}章(${state.wordsPerChapter}字),文末附### Summary(50字)。`;
+            state.chapters.push({ content: '', summary: '', images: [] }); state.currentChapterIndex = i; updateUI();
+            let lastUpdate = 0;
+            // 降低 temp 到 0.75
+            const fullText = await callTextAPIStream(sys, `开始写第${i+1}章`, 0.75, (text) => {
+                state.chapters[i].content = text; const now = Date.now();
+                if (now - lastUpdate > 50) {
+                    lastUpdate = now;
+                    const ps = text.split('\n').map(p => p.trim()).filter(p => p);
+                    $('novelContent').innerHTML = `<h2 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-4 serif text-center">第 ${i + 1} 章</h2><div class="novel-text cursor-blink">${ps.map(p=>`<p>${p}</p>`).join('')}</div>`;
+                    $('novelContent').parentElement.scrollTop = $('novelContent').parentElement.scrollHeight;
+                }
+            });
+            const { content, summary } = parseChapter(fullText);
+            state.chapters[i].content = content; state.chapters[i].summary = summary; state.summaries.push(summary);
+            updateUI(); renderNovelContent(); saveNovelToLibrary();
+
+            $('statusHint').innerText = `第 ${i+1} 章完成，自动生成插图中...`;
+            try { 
+                const defaultPrompt = getChapterImgPrompt(summary);
+                const imgUrl = await callImageAPI(defaultPrompt); 
+                state.chapters[i].images.push(imgUrl);
+                renderNovelContent(); saveNovelToLibrary(); 
+            } catch(e) { console.error("Img Gen Err:", e); }
+            await new Promise(r => setTimeout(r, 300));
+        }
+        $('statusHint').innerText = '✅ 完成！';
+    } catch (e) { console.error(e); $('statusText').innerText = `❌ 错误: ${e.message}`; }
+    finally { 
+        state.isGenerating = false; 
+        $('generateBtn').disabled = false; $('suggestBtn').disabled = false; 
+        if($('generateBtnM')) $('generateBtnM').disabled = false;
+        $('btnText').innerText = '🚀 重新开始'; $('btnTextM').innerText = '🚀 开始创作';
+    }
+}
+
+// --- Image Options Menu Logic (多图管理) ---
+window.showImageOptions = function(chapterIdx, imgIdx) {
+    state.currentRedoChapterIdx = chapterIdx;
+    state.currentRedoImgIdx = imgIdx;
+    const ch = state.chapters[chapterIdx];
+    if (!ch) return;
+    const images = ch.images || (ch.image ? [ch.image] : []);
+    if (!images[imgIdx]) return;
+    $('imgPromptInput').value = getChapterImgPrompt(ch.summary);
+    $('redoPromptBox').classList.add('hidden');
+    $('imageOptionsMenu').classList.remove('hidden');
+}
+ $('closeImgMenuBtn').addEventListener('click', () => $('imageOptionsMenu').classList.add('hidden'));
+ $('downloadImgBtn').addEventListener('click', async () => {
+    const ch = state.chapters[state.currentRedoChapterIdx]; if (!ch) return;
+    const images = ch.images || (ch.image ? [ch.image] : []);
+    const imgUrl = images[state.currentRedoImgIdx]; if (!imgUrl) return;
+    try {
+        const res = await fetch(imgUrl); const blob = await res.blob();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = `${state.title}_ch${state.currentRedoChapterIdx+1}_${state.currentRedoImgIdx+1}.png`; a.click();
+    } catch (err) { window.open(imgUrl, '_blank'); }
+});
+ $('redoImgBtn').addEventListener('click', () => $('redoPromptBox').classList.remove('hidden'));
+ $('confirmRedoBtn').addEventListener('click', async () => {
+    const prompt = $('imgPromptInput').value.trim(); if (!prompt) return;
+    $('imageOptionsMenu').classList.add('hidden'); $('statusHint').innerText = '正在重新生成插图...';
+    try {
+        const newUrl = await callImageAPI(prompt);
+        const ch = state.chapters[state.currentRedoChapterIdx];
+        if (!ch.images) ch.images = ch.image ? [ch.image] : [];
+        ch.images[state.currentRedoImgIdx] = newUrl;
+        renderNovelContent(); saveNovelToLibrary(); $('statusHint').innerText = '✅ 插图更新成功！';
+    } catch (e) { alert('重做失败: ' + e.message); $('statusHint').innerText = ''; }
+});
+ $('uploadReplaceBtn').addEventListener('click', () => $('imgUploadInput').click());
+ $('imgUploadInput').addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    resizeImage(file, 1024, (base64) => {
+        const ch = state.chapters[state.currentRedoChapterIdx];
+        if (!ch.images) ch.images = ch.image ? [ch.image] : [];
+        ch.images[state.currentRedoImgIdx] = base64;
+        renderNovelContent(); saveNovelToLibrary(); 
+        $('imageOptionsMenu').classList.add('hidden');
+        e.target.value = '';
+    });
+});
+ $('addNewImgBtn').addEventListener('click', async () => {
+    const ch = state.chapters[state.currentRedoChapterIdx]; if (!ch) return;
+    if (!ch.images) ch.images = ch.image ? [ch.image] : [];
+    $('imageOptionsMenu').classList.add('hidden'); $('statusHint').innerText = '正在让 AI 画一张新图...';
+    try {
+        const prompt = getChapterImgPrompt(ch.summary) + ' Different angle and composition.';
+        const newUrl = await callImageAPI(prompt);
+        ch.images.push(newUrl);
+        renderNovelContent(); saveNovelToLibrary(); $('statusHint').innerText = '✅ 新图添加成功！';
+    } catch (e) { alert('添加失败: ' + e.message); $('statusHint').innerText = ''; }
+});
+ $('deleteImgBtn').addEventListener('click', () => {
+    const ch = state.chapters[state.currentRedoChapterIdx]; if (!ch) return;
+    if (!ch.images) ch.images = ch.image ? [ch.image] : [];
+    ch.images.splice(state.currentRedoImgIdx, 1);
+    renderNovelContent(); saveNovelToLibrary(); 
+    $('imageOptionsMenu').classList.add('hidden');
+});
+
+ $('suggestBtn').addEventListener('click', async () => {
+    if (!$('themeInput').value.trim()) return alert('请先输入主题！');
+    $('suggestBtn').disabled = true; $('suggestText').innerText = '思考中...';
+    try {
+        const sys = '生成3个书名和100字简介。JSON: {"titles":["t1","t2","t3"], "synopsis":"s"}';
+        const res = await (await fetch(TEXT_ENDPOINT, { method:'POST', headers:{'Authorization':`Bearer ${API_KEY}`,'Content-Type':'application/json'}, body:JSON.stringify({model:'agnes-2.0-flash', messages:[{role:'system',content:sys},{role:'user',content:`主题：${$('themeInput').value}`}], temperature:0.9}) })).json();
+        const data = JSON.parse(res.choices[0].message.content.match(/\{.*\}/s)[0]);
+        state.synopsis = data.synopsis; $('synopsisText').innerText = data.synopsis; $('titleOptions').innerHTML = '';
+        data.titles.forEach(t => {
+            const b = document.createElement('button');
+            b.className = 'px-2 py-1 bg-white border border-indigo-200 text-indigo-700 rounded text-xs hover:bg-indigo-50';
+            b.innerText = t; 
+            b.onclick = () => {
+                state.title = t;
+                // 将标题和简介融合到设定输入框中
+                const currentTheme = $('themeInput').value.split('\n').filter(line => !line.startsWith('书名：') && !line.startsWith('简介：')).join('\n').trim();
+                $('themeInput').value = `书名：${t}\n简介：${data.synopsis}\n${currentTheme}`.trim();
+                document.querySelectorAll('#titleOptions button').forEach(x => x.classList.remove('tab-active','border-transparent'));
+                b.classList.add('tab-active','border-transparent');
+            };
+            $('titleOptions').appendChild(b);
+        });
+        $('suggestionBox').classList.remove('hidden');
+    } catch(e) { alert('失败:'+e.message); } finally { $('suggestBtn').disabled = false; $('suggestText').innerText = '✨ 重新获取灵感'; }
+});
+
+ $('openChatBtn').addEventListener('click', () => { $('chatPanel').classList.remove('translate-y-full'); $('chatInput').focus(); });
+ $('closeChatBtn').addEventListener('click', () => $('chatPanel').classList.add('translate-y-full'));
+ $('sendChatBtn').addEventListener('click', async () => {
+    const input = $('chatInput').value.trim(); if (!input) return;
+    if (state.currentChapterIndex === -1) return alert('请先生成章节');
+    const paraIdx = $('chatInput').dataset.paraIdx;
+    $('chatMessages').innerHTML += `<div class="flex justify-end"><div class="chat-bubble-user p-2 rounded-lg max-w-[80%]">${input}</div></div>`;
+    $('chatInput').value = ''; $('chatInput').dataset.paraIdx = '';
+    $('chatMessages').innerHTML += `<div class="flex justify-start"><div class="chat-bubble-ai p-2 rounded-lg max-w-[80%]" id="ai-reply">正在修改...</div></div>`;
+    $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+    const ch = state.chapters[state.currentChapterIndex]; let sys;
+    if (paraIdx !== undefined) {
+        const paras = ch.content.split('\n').filter(p => p.trim());
+        sys = `你是小说编辑助手。当前段落内容:\n"${paras[paraIdx]}"\n请根据用户的要求修改这个段落。直接输出修改后的段落，不要解释。`;
+    } else { sys = `你是小说编辑助手。当前章节内容:\n${ch.content}\n请根据用户的要求修改这段内容。直接输出修改后的完整正文，不要输出摘要和解释。`; }
+    try {
+        const fullText = await callTextAPIStream(sys, input, 0.6, (text) => { $('ai-reply').innerText = text; $('chatMessages').scrollTop = $('chatMessages').scrollHeight; });
+        $('ai-reply').innerText = '修改完成，已更新正文。';
+        if (paraIdx !== undefined) { let paras = ch.content.split('\n').filter(p => p.trim()); paras[paraIdx] = fullText; ch.content = paras.join('\n'); } 
+        else { ch.content = fullText; }
+        renderNovelContent(); saveNovelToLibrary();
+    } catch (e) { $('ai-reply').innerText = `修改失败: ${e.message}`; }
+});
+
+ $('editOutlineBtn').addEventListener('click', () => {
+    const editor = $('outlineEditor'); const viewer = $('outlineViewer');
+    if (editor.classList.contains('hidden')) { editor.value = state.outline; editor.classList.remove('hidden'); viewer.classList.add('hidden'); $('editOutlineBtn').innerText = '💾 保存大纲'; } 
+    else { state.outline = editor.value; updateUI(); saveNovelToLibrary(); editor.classList.add('hidden'); viewer.classList.remove('hidden'); $('editOutlineBtn').innerText = '✏️ 手动编辑大纲'; }
+});
+
+ $('importTxtBtn').addEventListener('click', () => $('importTxtFile').click());
+ $('importTxtFile').addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        const text = ev.target.result; const paras = text.split(/\n\n+/).map(p => p.trim()).filter(p => p);
+        state.chapters = [{ content: paras.join('\n'), summary: '导入的外部文本', images: [] }];
+        state.currentChapterIndex = 0; state.title = file.name.replace('.txt', ''); state.currentNovelId = Date.now().toString();
+        switchView('view-read'); renderNovelContent(); updateUI(); saveNovelToLibrary();
+        alert('导入成功！你可以点击"+"按钮让 AI 续写。');
+    };
+    reader.readAsText(file);
+});
+
+window.toolAction = async function(action) {
+    if (!state.currentNovelId) return alert('请先生成或加载小说');
+    $('toolResult').classList.remove('hidden'); $('toolResult').innerText = 'AI 思考中...';
+    try {
+        let sys = '', user = '';
+        if (action === 'plot_holes') { sys = '你是剧情审查员。找出以下大纲和摘要中的逻辑漏洞。'; user = `大纲:${state.outline}\n摘要:${state.summaries.join('\n')}`; } 
+        else if (action === 'suggest_plot') { sys = '你是小说策划。根据前文提供3个下一步剧情选项。'; user = `当前进度:${state.summaries[state.summaries.length-1] || state.outline}`; } 
+        else if (action === 'generate_synopsis') { sys = '生成一段100字左右的小说简介。'; user = `主题:${state.theme}\n大纲:${state.outline}`; } 
+        else if (action === 'name_master') { sys = '你是起名大师。根据小说背景，为人物、地点、法宝各生成3个名字。'; user = `主题:${state.theme}\n设定:${state.lorebook}`; } 
+        else if (action === 'relationship_graph') {
+            sys = '生成 Mermaid 格式的角色关系图谱。只输出代码块。'; user = `角色:${state.characters}\n大纲:${state.outline}`;
+            const code = await callTextAPI(sys, user, 0.7); const cleanCode = code.replace(/```mermaid|```/g, '').trim();
+            const { svg } = await mermaid.render('graphDiv', cleanCode); $('toolResult').innerHTML = svg; return;
+        } else if (action === 'if_line') {
+            const newTheme = prompt('输入 IF 线的前提条件（如：如果主角当时失败了）：'); if (!newTheme) return;
+            $('toolboxModal').classList.add('hidden'); const cloned = JSON.parse(JSON.stringify(state));
+            cloned.currentNovelId = Date.now().toString(); cloned.title = state.title + " (IF线)"; cloned.theme = newTheme; Object.assign(state, cloned);
+            return generateNovel(true, newTheme, 1);
+        } else if (action === 'multi_ending') {
+            const type = prompt('输入结局类型，如：Good Ending, Bad Ending, True Ending'); if (!type) return;
+            sys = `你是小说家。写一个${type}。直接输出正文。`; user = `基于大纲:${state.outline}\n前文:${state.summaries.join('; ')}`;
+            $('toolboxModal').classList.add('hidden'); state.chapters.push({ content: '', summary: `${type}结局`, images: [] });
+            state.currentChapterIndex = state.chapters.length - 1; renderNovelContent(); updateUI();
+            await callTextAPIStream(sys, user, 0.85, (text) => { state.chapters[state.currentChapterIndex].content = text; renderNovelContent(); });
+            saveNovelToLibrary(); $('toolResult').innerText = '结局生成完毕！'; $('toolResult').classList.remove('hidden'); return;
+        }
+        const res = await callTextAPI(sys, user, 0.7); $('toolResult').innerText = res;
+    } catch (e) { $('toolResult').innerText = `执行失败: ${e.message}`; }
+};
+
+function exportPDF() {
+    if (!state.title) return alert('没有小说可导出');
+    const el = document.createElement('div'); el.style.padding = '20px';
+    el.innerHTML = `<h1 style="text-align:center;">${state.title}</h1><h2 style="text-align:center;">作者: ${state.author||'佚名'}</h2><br>`;
+    state.chapters.forEach((c, i) => { el.innerHTML += `<h3>第 ${i+1} 章</h3><div>${c.content.replace(/\n/g, '<br>')}</div><br>`; });
+    document.body.appendChild(el); html2pdf().from(el).save(`${state.title}.pdf`).then(() => document.body.removeChild(el));
+}
+
+ $('exportPdfBtn').addEventListener('click', exportPDF);
+
+// --- Share Logic (Base64 Data URI + is.gd Shortener) ---
+function buildShareableHTML() {
+    const chapterHtml = state.chapters.map((c, i) => {
+        const images = c.images || (c.image ? [c.image] : []);
+        const imgsHtml = images.map(url => `<img src="${url}" class="chapter-img">`).join('');
+        return `<div class="chapter"><h2>第 ${i+1} 章</h2>${imgsHtml}<div class="content">${c.content.split('\n').map(p => `<p>${p}</p>`).join('')}</div></div>`;
+    }).join('');
+    return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${state.title}</title><style>body{font-family:'Noto Serif SC',serif;background-color:#fffdf9;color:#1c1917;margin:0;padding:0}.container{max-width:800px;margin:0 auto;padding:40px 20px}.header{text-align:center;margin-bottom:40px}.cover{width:200px;height:300px;object-fit:cover;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-bottom:20px}h1{font-size:2.5rem;margin:10px 0;color:#4338ca}h2{font-size:1.8rem;border-bottom:1px solid #e7e5e4;padding-bottom:10px;margin-top:40px;color:#4338ca}.meta{color:#78716c;font-size:0.9rem;margin-bottom:20px}.synopsis{font-style:italic;color:#52525b;background:#f5f5f4;padding:15px;border-radius:8px;margin-bottom:30px}.chapter-img{max-width:100%;height:auto;max-height:80vh;object-fit:contain;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin:20px auto;display:block}.content p{line-height:2;font-size:1.1rem;text-indent:2em;margin-bottom:1.5rem}</style></head><body><div class="container"><div class="header">${state.coverUrl?`<img src="${state.coverUrl}" class="cover">`:''}<h1>${state.title}</h1><div class="meta">作者: ${state.author || '佚名'} · ${state.tags || ''}</div><div class="synopsis">${state.synopsis || ''}</div></div>${chapterHtml}</div></body></html>`;
+}
+
+function shareWeb() {
+    if (!state.title) return alert('没有小说可分享');
+    $('shareLoading').classList.remove('hidden');
+    $('shareResult').classList.add('hidden');
+    $('closeShareBtn').classList.add('hidden');
+    $('copyShareLinkBtn').innerText = '复制链接';
+    $('copyShareLinkBtn').classList.remove('hidden');
+    $('shareModal').classList.remove('hidden');
+
+    try {
+        const htmlContent = buildShareableHTML();
+        state.currentShareHtml = htmlContent;
+        
+        // 1. Convert to Base64 Data URI
+        const base64Html = btoa(unescape(encodeURIComponent(htmlContent)));
+        const dataUrl = `data:text/html;base64,${base64Html}`;
+        
+        // 2. Shorten with is.gd
+        const shortenApiUrl = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(dataUrl)}`;
+        fetch(shortenApiUrl).then(res => res.text()).then(text => {
+            if (text.startsWith('http')) {
+                $('shareLinkInput').value = text;
+                $('copyShareLinkBtn').innerText = '复制短链接';
+            } else {
+                $('shareLinkInput').value = dataUrl;
+                $('copyShareLinkBtn').innerText = '复制长链接 (Data URI)';
+            }
+            $('shareLoading').classList.add('hidden');
+            $('shareResult').classList.remove('hidden');
+            $('closeShareBtn').classList.remove('hidden');
+        }).catch(err => {
+            $('shareLoading').classList.add('hidden');
+            $('shareResult').classList.remove('hidden');
+            $('shareLinkInput').value = '生成链接失败，请点击下方下载文件手动分享。';
+            $('copyShareLinkBtn').classList.add('hidden');
+            $('closeShareBtn').classList.remove('hidden');
+        });
+    } catch (err) {
+        console.error("Share Error:", err);
+        $('shareLoading').classList.add('hidden');
+        $('shareResult').classList.remove('hidden');
+        $('shareLinkInput').value = '生成链接失败，请点击下方下载文件手动分享。';
+        $('copyShareLinkBtn').classList.add('hidden');
+        $('closeShareBtn').classList.remove('hidden');
+    }
+}
+
+ $('shareWebBtn').addEventListener('click', shareWeb);
+
+ $('copyShareLinkBtn').addEventListener('click', () => {
+    $('shareLinkInput').select();
+    document.execCommand('copy');
+    alert('链接已复制！');
+});
+ $('downloadHtmlBtn').addEventListener('click', () => {
+    const blob = new Blob([state.currentShareHtml], { type: 'text/html' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${state.title}.html`; a.click();
+});
+ $('closeShareBtn').addEventListener('click', () => {
+    $('shareModal').classList.add('hidden');
+    $('copyShareLinkBtn').classList.remove('hidden');
+});
+
+function applyTemplate(text) { $('themeInput').value = text; $('charactersInput').value = ''; $('suggestionBox').classList.add('hidden'); state.title = ''; }
+ $('generateBtn').addEventListener('click', () => generateNovel(false));
+if($('generateBtnM')) $('generateBtnM').addEventListener('click', () => generateNovel(false));
+
+ $('continueBtn').addEventListener('click', () => { if(state.chapters.length > 0) $('continueModal').classList.remove('hidden'); else alert('请先生成至少一章'); });
+ $('cancelContinueBtn').addEventListener('click', () => $('continueModal').classList.add('hidden'));
+ $('confirmContinueBtn').addEventListener('click', () => { const c = parseInt($('continueCountInput').value)||1; $('continueModal').classList.add('hidden'); generateNovel(true, null, c); });
+
+ $('navCreate').addEventListener('click', () => switchView('view-create'));
+ $('navRead').addEventListener('click', () => switchView('view-read'));
+ $('toggleMemoryBtn').addEventListener('click', () => $('memoryPanel').classList.toggle('translate-x-full'));
+
+// 移动端菜单逻辑
+ $('mobileMenuBtn').addEventListener('click', () => $('mobileMenuModal').classList.remove('hidden'));
+ $('closeMobileMenuBtn').addEventListener('click', () => $('mobileMenuModal').classList.add('hidden'));
+ $('mFontDec').addEventListener('click', () => { let s = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--reader-font-size')); if(s>1) document.documentElement.style.setProperty('--reader-font-size', (s-1)+'rem'); });
+ $('mFontInc').addEventListener('click', () => { let s = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--reader-font-size')); document.documentElement.style.setProperty('--reader-font-size', (s+1)+'rem'); });
+ $('mMemory').addEventListener('click', () => { $('mobileMenuModal').classList.add('hidden'); $('memoryPanel').classList.toggle('translate-x-full'); });
+ $('mDark').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+ $('mContinue').addEventListener('click', () => { $('mobileMenuModal').classList.add('hidden'); if(state.chapters.length > 0) $('continueModal').classList.remove('hidden'); else alert('请先生成至少一章'); });
+ $('mBranch').addEventListener('click', () => { $('mobileMenuModal').classList.add('hidden'); if(state.chapters.length>0) $('branchModal').classList.remove('hidden'); else alert('请先生成至少一章'); });
+ $('mToolbox').addEventListener('click', () => { $('mobileMenuModal').classList.add('hidden'); $('toolResult').classList.add('hidden'); $('toolboxModal').classList.remove('hidden'); });
+ $('mShare').addEventListener('click', () => { $('mobileMenuModal').classList.add('hidden'); shareWeb(); });
+ $('mPdf').addEventListener('click', () => { $('mobileMenuModal').classList.add('hidden'); exportPDF(); });
+ $('mTxt').addEventListener('click', () => { 
+    $('mobileMenuModal').classList.add('hidden');
+    if (!state.title) return alert('没有小说可导出');
+    let txt = `《${state.title}》\n作者: ${state.author || '佚名'}\n简介: ${state.synopsis}\n\n--- 大纲 ---\n${state.outline}\n\n--- 设定集 ---\n${state.lorebook}\n\n`;
+    state.chapters.forEach((c, i) => { txt += `\n第 ${i+1} 章\n\n${c.content}\n`; });
+    const blob = new Blob([txt], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${state.title}.txt`; a.click();
+});
+
+ $('prevChapterBtn').addEventListener('click', () => {
+    if (state.currentChapterIndex > 0) { state.currentChapterIndex--; renderNovelContent(); updateUI(); $('novelContent').parentElement.scrollTop = 0; }
+});
+ $('nextChapterBtn').addEventListener('click', () => {
+    if (state.currentChapterIndex < state.chapters.length - 1) { state.currentChapterIndex++; renderNovelContent(); updateUI(); $('novelContent').parentElement.scrollTop = 0; }
+});
+
+ $('libraryBtn').addEventListener('click', () => { renderLibrary(); $('libraryModal').classList.remove('hidden'); });
+ $('closeLibraryBtn').addEventListener('click', () => $('libraryModal').classList.add('hidden'));
+ $('sortLibrary').addEventListener('change', renderLibrary);
+ $('toolboxBtn').addEventListener('click', () => { $('toolResult').classList.add('hidden'); $('toolboxModal').classList.remove('hidden'); });
+ $('closeToolboxBtn').addEventListener('click', () => $('toolboxModal').classList.add('hidden'));
+ $('darkModeBtn').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+ $('fontIncrement').addEventListener('click', () => { let s = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--reader-font-size')); document.documentElement.style.setProperty('--reader-font-size', (s+1)+'rem'); });
+ $('fontDecrement').addEventListener('click', () => { let s = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--reader-font-size')); if(s>1) document.documentElement.style.setProperty('--reader-font-size', (s-1)+'rem'); });
+ $('exportTxtBtn').addEventListener('click', () => {
+    if (!state.title) return alert('没有小说可导出');
+    let txt = `《${state.title}》\n作者: ${state.author || '佚名'}\n简介: ${state.synopsis}\n\n--- 大纲 ---\n${state.outline}\n\n--- 设定集 ---\n${state.lorebook}\n\n`;
+    state.chapters.forEach((c, i) => { txt += `\n第 ${i+1} 章\n\n${c.content}\n`; });
+    const blob = new Blob([txt], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${state.title}.txt`; a.click();
+});
+ $('branchBtn').addEventListener('click', () => { if(state.chapters.length>0) $('branchModal').classList.remove('hidden'); else alert('请先生成至少一章'); });
+ $('cancelBranchBtn').addEventListener('click', () => $('branchModal').classList.add('hidden'));
+ $('confirmBranchBtn').addEventListener('click', () => {
+    const newTheme = $('branchThemeInput').value.trim(); if (!newTheme) return alert('请输入新的剧情走向');
+    const cloned = JSON.parse(JSON.stringify(state)); cloned.currentNovelId = Date.now().toString(); cloned.title = state.title + " (分支)"; cloned.theme = newTheme;
+    Object.assign(state, cloned); $('branchModal').classList.add('hidden'); $('branchThemeInput').value = ''; generateNovel(true, newTheme, 1);
+});
+
+updateUI();
+</script>
+</body>
+</html>
