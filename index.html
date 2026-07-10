@@ -29,13 +29,12 @@
     .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; opacity: 0.5; }
     .novel-text { font-family: 'Noto Serif SC', serif; font-size: var(--reader-font-size); line-height: var(--reader-line-height); color: var(--text-main); }
-    .novel-text p { margin-bottom: 1.5rem; text-indent: 2em; cursor: pointer; border-radius: 4px; padding: 4px; }
-    .novel-text p:hover { background-color: rgba(99, 102, 241, 0.05); }
+    .novel-text p { margin-bottom: 1.5rem; text-indent: 2em; cursor: pointer; border-radius: 4px; padding: 4px; transition: background 0.2s; }
+    .novel-text p:hover { background-color: rgba(99, 102, 241, 0.08); }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes blink { 50% { opacity: 0; } }
     .cursor-blink::after { content: '▋'; animation: blink 1s infinite; margin-left: 2px; font-weight: bold; color: var(--accent); }
-    @keyframes spin { to { transform: rotate(360deg); } }
     .view { display: none; } .view.active { display: flex; }
     @media (min-width: 1024px) { .view { display: flex !important; } .mobile-nav { display: none !important; } .mobile-only { display: none !important; } }
     @media (max-width: 1023px) { .desktop-only { display: none !important; } }
@@ -54,6 +53,14 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Toggle Switch */
+    .switch { position: relative; display: inline-block; width: 38px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 22px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent); }
+    input:checked + .slider:before { transform: translateX(16px); }
 </style>
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
@@ -165,6 +172,14 @@
                     </div>
                 </div>
                 
+                <div class="flex items-center justify-end gap-2 -mt-2">
+                    <span class="text-xs opacity-70 font-medium">在此章节数完结小说</span>
+                    <label class="switch">
+                        <input type="checkbox" id="isEndingToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
                 <div class="lg:hidden fixed bottom-16 left-0 right-0 p-4 bg-[var(--bg-panel)] border-t border-[var(--border)] z-20">
                     <button id="generateBtnM" class="w-full bg-indigo-700 text-white py-2.5 rounded-lg hover:bg-indigo-800 transition font-bold text-sm disabled:opacity-50 shadow-lg shadow-indigo-200/50">
                         <span id="btnTextM">🚀 开始创作</span>
@@ -244,18 +259,42 @@
                     </div>
                 </aside>
             </div>
-            <button id="openChatBtn" class="absolute bottom-20 lg:bottom-4 right-4 bg-indigo-600 text-white p-3 rounded-full shadow-lg z-20 hover:bg-indigo-700">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-            </button>
-            <div id="chatPanel" class="absolute bottom-0 left-0 right-0 lg:right-80 h-64 bg-[var(--bg-panel)] border-t flex flex-col transform translate-y-full transition-transform z-30 shadow-2xl">
-                <div class="p-2 border-b flex justify-between items-center bg-[var(--bg-main)]">
-                    <span class="text-xs font-bold flex items-center gap-1">💬 AI 修改助手 <span class="opacity-50">(点击段落可直接修改)</span></span>
-                    <button id="closeChatBtn" class="text-stone-400 hover:text-stone-600 p-1"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+        </section>
+
+        <!-- View: AI Agent -->
+        <section id="view-agent" class="view flex-1 flex-col overflow-hidden bg-[var(--bg-main)]">
+            <div class="bg-[var(--bg-panel)] border-b border-[var(--border)] px-4 py-2 flex items-center gap-2 flex-shrink-0 flex-wrap">
+                <select id="agentBookSelect" class="p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm flex-1 min-w-[120px]">
+                    <option value="">选择小说...</option>
+                </select>
+                <select id="agentScopeSelect" class="p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm">
+                    <option value="whole">整本书</option>
+                    <option value="chapter">特定章节</option>
+                    <option value="paragraph">特定段落</option>
+                </select>
+                <select id="agentChapterSelect" class="p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm hidden"></select>
+                <input type="number" id="agentParaInput" class="p-2 w-16 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-sm hidden" placeholder="段号" min="1">
+            </div>
+            
+            <div id="agentMessages" class="flex-1 overflow-y-auto custom-scroll p-4 space-y-3 max-w-3xl mx-auto w-full pb-24">
+                <div class="flex justify-start">
+                    <div class="chat-bubble-ai p-3 rounded-lg max-w-[80%]">
+                        <p class="font-bold mb-1">墨客 Agnes (AI Agent)</p>
+                        <p class="text-xs opacity-70">你好！我是你的专属 AI 合著者。请选择一部小说和修改范围，告诉我你的想法。比如"让这一章更有悬念"、"重写第三段让主角更冷酷"。修改完成后，你可以直接点击消息上的按钮应用回原书！</p>
+                    </div>
                 </div>
-                <div id="chatMessages" class="flex-1 overflow-y-auto custom-scroll p-3 space-y-2 text-xs"></div>
-                <div class="p-2 border-t flex gap-2">
-                    <input id="chatInput" class="flex-1 p-2 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg text-xs" placeholder="如：把这一章主角的名字改成李雷">
-                    <button id="sendChatBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold">执行修改</button>
+            </div>
+
+            <div class="p-3 border-t border-[var(--border)] bg-[var(--bg-panel)] max-w-3xl mx-auto w-full lg:relative fixed bottom-16 left-0 right-0">
+                <div class="flex gap-2 mb-2 overflow-x-auto custom-scroll pb-1">
+                    <button class="quick-agent-btn flex-shrink-0 px-3 py-1 bg-[var(--bg-main)] rounded-full border border-[var(--border)] text-xs">增加细节描写</button>
+                    <button class="quick-agent-btn flex-shrink-0 px-3 py-1 bg-[var(--bg-main)] rounded-full border border-[var(--border)] text-xs">润色文笔</button>
+                    <button class="quick-agent-btn flex-shrink-0 px-3 py-1 bg-[var(--bg-main)] rounded-full border border-[var(--border)] text-xs">增强冲突感</button>
+                    <button class="quick-agent-btn flex-shrink-0 px-3 py-1 bg-[var(--bg-main)] rounded-full border border-[var(--border)] text-xs">改为第一人称</button>
+                </div>
+                <div class="flex gap-2">
+                    <input id="agentInput" class="flex-1 p-3 bg-[var(--bg-main)] border border-[var(--border)] rounded-xl text-sm" placeholder="给 Agnes 下达指令...">
+                    <button id="sendAgentBtn" class="px-4 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold">发送</button>
                 </div>
             </div>
         </section>
@@ -263,10 +302,6 @@
 
     <!-- Mobile Bottom Nav -->
     <nav class="mobile-nav lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--bg-panel)] border-t border-[var(--border)] flex z-30 flex-shrink-0 h-16">
-        <button id="prevChapterBtn" class="flex-1 py-2 text-xs font-medium flex items-center justify-center gap-1 disabled:opacity-30">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            上一章
-        </button>
         <button id="navCreate" class="flex-1 py-2 text-xs font-medium text-indigo-700 border-t-2 border-indigo-700 flex flex-col items-center justify-center">
             <svg class="h-5 w-5 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
             创作
@@ -275,9 +310,9 @@
             <svg class="h-5 w-5 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
             阅读
         </button>
-        <button id="nextChapterBtn" class="flex-1 py-2 text-xs font-medium flex items-center justify-center gap-1 disabled:opacity-30">
-            下一章
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+        <button id="navAgent" class="flex-1 py-2 text-xs font-medium opacity-50 border-t-2 border-transparent flex flex-col items-center justify-center">
+            <svg class="h-5 w-5 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+            Agent
         </button>
     </nav>
 
@@ -287,7 +322,7 @@
 const API_KEY = 'sk-3ddxdulMCfy9pxxKG3tftpL7ulMtQGQS19Tk9rqM6oL7xfXM';
 const TEXT_ENDPOINT = 'https://apihub.agnes-ai.com/v1/chat/completions';
 const IMAGE_ENDPOINT = 'https://apihub.agnes-ai.com/v1/images/generations';
-const STORAGE_KEY = 'agnes_novels_library_v12';
+const STORAGE_KEY = 'agnes_novels_library_v13';
 const COVER_GALLERY_KEY = 'agnes_cover_gallery';
 
 const storage = {
@@ -301,7 +336,7 @@ storage.init();
 const state = {
     currentNovelId: null, isGenerating: false, currentChapterIndex: -1,
     title: '', theme: '', synopsis: '', author: '', characters: '', coverUrl: '', coverRef: null,
-    tags: '', style: '通用小说',
+    tags: '', style: '通用小说', isEnding: false,
     outline: '', lorebook: '', chapters: [], summaries: [],
     totalChapters: 3, wordsPerChapter: 1000,
     timeline: '', locations: '', items: '', factions: '',
@@ -311,15 +346,11 @@ const state = {
 const $ = id => document.getElementById(id);
 mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
 
-// --- 全新弹窗系统 (彻底修复遮罩层阻挡问题) ---
 function showModal(title, contentHtml) {
     const container = $('modalContainer');
-    // 清除可能残留的旧弹窗
     container.innerHTML = ''; 
-
     const overlay = document.createElement('div');
     overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-[60] modal-overlay';
-    
     const card = document.createElement('div');
     card.className = 'modal-card';
     card.innerHTML = `
@@ -329,16 +360,11 @@ function showModal(title, contentHtml) {
         </div>
         <div class="p-6 overflow-y-auto custom-scroll flex-1">${contentHtml}</div>
     `;
-    
     overlay.appendChild(card);
     container.appendChild(overlay);
-    
-    // 点击遮罩层空白处关闭
     overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-    // 点击关闭按钮关闭
     card.querySelector('.close-btn').onclick = () => overlay.remove();
-    
-    return overlay; // 返回 overlay 以便后续手动销毁
+    return overlay; 
 }
 
 function showAlert(msg, onConfirm) {
@@ -367,14 +393,14 @@ function switchView(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     $(viewId).classList.add('active');
     if (window.innerWidth < 1024) {
-        if (viewId === 'view-create') {
-            $('navCreate').classList.add('text-indigo-700','border-indigo-700'); $('navCreate').classList.remove('opacity-50','border-transparent');
-            $('navRead').classList.remove('text-indigo-700','border-indigo-700'); $('navRead').classList.add('opacity-50','border-transparent');
-        } else {
-            $('navRead').classList.add('text-indigo-700','border-indigo-700'); $('navRead').classList.remove('opacity-50','border-transparent');
-            $('navCreate').classList.remove('text-indigo-700','border-indigo-700'); $('navCreate').classList.add('opacity-50','border-transparent');
-            $('memoryPanel').classList.add('translate-x-full');
-        }
+        ['navCreate', 'navRead', 'navAgent'].forEach(id => {
+            $(id).classList.remove('text-indigo-700','border-indigo-700'); $(id).classList.add('opacity-50','border-transparent');
+        });
+        if (viewId === 'view-create') $('navCreate').classList.add('text-indigo-700','border-indigo-700'), $('navCreate').classList.remove('opacity-50','border-transparent');
+        if (viewId === 'view-read') $('navRead').classList.add('text-indigo-700','border-indigo-700'), $('navRead').classList.remove('opacity-50','border-transparent');
+        if (viewId === 'view-agent') $('navAgent').classList.add('text-indigo-700','border-indigo-700'), $('navAgent').classList.remove('opacity-50','border-transparent');
+        $('memoryPanel').classList.add('translate-x-full');
+        if (viewId === 'view-agent') refreshAgentBooks();
     }
 }
 function switchTab(tabName) {
@@ -395,7 +421,6 @@ function switchLoreTab(tabName) {
     if(activeBtn) { activeBtn.classList.add('sub-tab-active'); activeBtn.classList.remove('opacity-50'); }
 }
 
-// 带超时的 Fetch，防止卡死
 function fetchWithTimeout(url, options, timeout = 20000) {
     return new Promise((resolve, reject) => {
         const controller = new AbortController();
@@ -412,7 +437,7 @@ async function callTextAPIStream(systemPrompt, userPrompt, temp, onChunk) {
     const response = await fetchWithTimeout(TEXT_ENDPOINT, {
         method: 'POST', headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'agnes-2.0-flash', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: temp, stream: true })
-    }, 60000); // 流式给 60s
+    }, 60000); 
     if (!response.ok) throw new Error(`API Err ${response.status}`);
     const reader = response.body.getReader(); const decoder = new TextDecoder();
     let buffer = '', fullText = '';
@@ -478,7 +503,7 @@ function saveNovelToLibrary() {
     let lib = JSON.parse(storage.get(STORAGE_KEY) || '[]');
     const data = {
         id: state.currentNovelId, title: state.title, theme: state.theme, synopsis: state.synopsis, 
-        author: state.author, characters: state.characters, coverUrl: state.coverUrl, tags: state.tags, style: state.style,
+        author: state.author, characters: state.characters, coverUrl: state.coverUrl, tags: state.tags, style: state.style, isEnding: state.isEnding,
         outline: state.outline, lorebook: state.lorebook, chapters: state.chapters, summaries: state.summaries, 
         totalChapters: state.totalChapters, updatedAt: new Date().toLocaleString('zh-CN'),
         createdAt: lib.find(n=>n.id===state.currentNovelId)?.createdAt || new Date().toLocaleString('zh-CN'),
@@ -492,13 +517,14 @@ window.loadNovelFromLibrary = function(id, event) {
     const lib = JSON.parse(storage.get(STORAGE_KEY) || '[]'); const n = lib.find(b => b.id === id); if (!n) return;
     Object.assign(state, { 
         currentNovelId: n.id, title: n.title, theme: n.theme, synopsis: n.synopsis, author: n.author || '', 
-        characters: n.characters || '', coverUrl: n.coverUrl, tags: n.tags || '', style: n.style || '通用小说',
+        characters: n.characters || '', coverUrl: n.coverUrl, tags: n.tags || '', style: n.style || '通用小说', isEnding: n.isEnding || false,
         outline: n.outline, lorebook: n.lorebook || '', chapters: n.chapters || [], summaries: n.summaries || [], 
         totalChapters: n.totalChapters || n.chapters.length, currentChapterIndex: n.chapters.length > 0 ? 0 : -1, 
         timeline: n.timeline || '', locations: n.locations || '', items: n.items || '', factions: n.factions || '', isGenerating: false 
     });
     $('themeInput').value = n.theme; $('authorInput').value = state.author; $('charactersInput').value = state.characters;
     $('tagsInput').value = n.tags; $('styleSelect').value = state.style; $('chapterCount').value = state.totalChapters;
+    $('isEndingToggle').checked = state.isEnding;
     if($('authorInput_m')) $('authorInput_m').value = state.author;
     if($('tagsInput_m')) $('tagsInput_m').value = n.tags;
     if($('charactersInput_m')) $('charactersInput_m').value = state.characters;
@@ -508,6 +534,16 @@ window.loadNovelFromLibrary = function(id, event) {
     if (event) event.target.closest('.modal-overlay').remove();
     switchView('view-read');
 }
+
+function loadNovelForAgent(id) {
+    const lib = JSON.parse(storage.get(STORAGE_KEY) || '[]'); const n = lib.find(b => b.id === id); if (!n) return;
+    Object.assign(state, { 
+        currentNovelId: n.id, title: n.title, style: n.style || '通用小说', chapters: n.chapters || [], summaries: n.summaries || [], 
+        currentChapterIndex: n.chapters.length > 0 ? 0 : -1
+    });
+    refreshAgentChapters();
+}
+
 window.deleteNovel = function(e, id) {
     e.stopPropagation();
     showAlert('确定要永久删除这部小说吗？此操作不可撤销。', () => {
@@ -565,9 +601,17 @@ function renderNovelContent() {
     if(prevBtn) prevBtn.disabled = state.currentChapterIndex <= 0;
     if(nextBtn) nextBtn.disabled = state.currentChapterIndex >= state.chapters.length - 1;
 }
+
 function openChatWithPara(idx) {
-    $('chatPanel').classList.remove('translate-y-full'); $('chatInput').focus();
-    $('chatInput').placeholder = `输入指令修改第 ${idx+1} 段...`; $('chatInput').dataset.paraIdx = idx;
+    switchView('view-agent');
+    $('agentBookSelect').value = state.currentNovelId;
+    loadNovelForAgent(state.currentNovelId);
+    $('agentScopeSelect').value = 'paragraph';
+    toggleAgentScopeFields();
+    $('agentChapterSelect').value = state.currentChapterIndex;
+    $('agentParaInput').value = idx + 1;
+    $('agentInput').focus();
+    $('agentInput').placeholder = `正在修改 第${state.currentChapterIndex + 1}章 第${idx + 1}段...`;
 }
 
 function handleCoverRefUpload(file) {
@@ -581,7 +625,6 @@ function handleCoverRefUpload(file) {
 }
  $('coverRefInput').addEventListener('change', (e) => handleCoverRefUpload(e.target.files[0]));
 if($('coverRefInput_m')) $('coverRefInput_m').addEventListener('change', (e) => handleCoverRefUpload(e.target.files[0]));
-
  $('clearCoverRefBtn').addEventListener('click', () => {
     state.coverRef = null; $('coverRefInput').value = '';
     $('coverRefPreview').classList.add('hidden'); $('clearCoverRefBtn').classList.add('hidden');
@@ -635,13 +678,14 @@ async function generateNovel(isContinue = false, branchTheme = null, chaptersToG
         state.characters = $('charactersInput').value || ($('charactersInput_m') ? $('charactersInput_m').value : '');
         state.tags = $('tagsInput').value.trim() || ($('tagsInput_m') ? $('tagsInput_m').value.trim() : '');
         state.style = $('styleSelect').value;
+        state.isEnding = $('isEndingToggle').checked; // 获取结局开关状态
         const titleMatch = state.theme.match(/书名[：:]\s*(.+)/);
         if (titleMatch) state.title = titleMatch[1].trim();
         else if (!state.title) state.title = `《${state.theme.substring(0, 10)}》`; 
         state.outline = ''; state.lorebook = ''; state.summaries = []; state.chapters = []; state.currentChapterIndex = -1; state.coverUrl = '';
         state.timeline = ''; state.locations = ''; state.items = ''; state.factions = '';
         state.currentNovelId = Date.now().toString();
-    } else { state.totalChapters = state.chapters.length + chaptersToGen; }
+    } else { state.totalChapters = state.chapters.length + chaptersToGen; state.isEnding = false; } // 续写默认不强制完结
     if (branchTheme) state.theme = branchTheme;
     
     state.isGenerating = true; 
@@ -662,7 +706,7 @@ async function generateNovel(isContinue = false, branchTheme = null, chaptersToG
                 coverPromise = callImageAPI(coverPrompt, state.coverRef);
             }
             const styleInst = getStyleInstruction(state.style);
-            const setupPrompt = `小说《${state.title}》主题:${state.theme}。${styleInst} 角色:${state.characters || '无'}。
+            const setupPrompt = `小说《${state.title}》主题:${state.theme}。文风要求:${state.style}，${styleInst} 角色:${state.characters || '无'}。
             请直接输出以下内容，用明确的标题分隔：
             ### 大纲\n${state.totalChapters}章大纲\n### 设定\n100字世界观设定\n### 时间线\n故事的时间轴\n### 地点\n重要场景列表\n### 物品\n关键道具列表\n### 阵营\n势力分布`;
             const setupText = await callTextAPI('资深小说编辑', setupPrompt, 0.7);
@@ -690,7 +734,13 @@ async function generateNovel(isContinue = false, branchTheme = null, chaptersToG
             const styleInst = getStyleInstruction(state.style);
             let sys = `小说《${state.title}》文风:${state.style}\n大纲:${state.outline}\n设定:${state.lorebook}\n角色:${state.characters || '无'}\n【核心约束】必须严格遵循主题设定的背景题材（如都市、科幻、古风等），绝不允许在都市题材中出现古风等串台描写！\n`;
             if (state.summaries.length > 0) sys += `前文摘要:${state.summaries.join('; ')}\n`;
+            
+            // 结局判定逻辑
+            if (state.isEnding && i === endIdx - 1) {
+                sys += `\n【重要约束】这是小说的最后一章，必须给出一个完整、震撼且令人满意的结局，彻底收束所有伏笔与剧情线，绝不能再留悬念或开放式结尾。`;
+            }
             sys += `任务:写第${i+1}章(${state.wordsPerChapter}字),文末附### Summary(50字)。`;
+            
             state.chapters.push({ content: '', summary: '', images: [] }); state.currentChapterIndex = i; updateUI();
             let lastUpdate = 0;
             const fullText = await callTextAPIStream(sys, `开始写第${i+1}章`, 0.75, (text) => {
@@ -776,10 +826,11 @@ window.showImageOptions = function(chapterIdx, imgIdx) {
 
  $('suggestBtn').addEventListener('click', async () => {
     const theme = $('themeInput').value.trim();
+    const style = $('styleSelect').value;
     $('suggestBtn').disabled = true; 
     $('suggestText').innerText = '思考中...';
     try {
-        const sys = '生成3个书名和100字简介。严格以JSON格式返回：{"titles":["书名1","书名2","书名3"], "synopsis":"简介内容"}';
+        const sys = `生成3个符合"${style}"文风的书名和100字简介。严格以JSON格式返回：{"titles":["书名1","书名2","书名3"], "synopsis":"简介内容"}`;
         const userPrompt = theme ? `基于主题：${theme}` : `随机发挥，生成任意有趣的题材`;
         
         const content = await callTextAPI(sys, userPrompt, 0.9);
@@ -814,26 +865,102 @@ window.showImageOptions = function(chapterIdx, imgIdx) {
     }
 });
 
- $('openChatBtn').addEventListener('click', () => { $('chatPanel').classList.remove('translate-y-full'); $('chatInput').focus(); });
- $('closeChatBtn').addEventListener('click', () => $('chatPanel').classList.add('translate-y-full'));
- $('sendChatBtn').addEventListener('click', async () => {
-    const input = $('chatInput').value.trim(); if (!input) return;
-    if (state.currentChapterIndex === -1) return showToast('请先生成章节');
-    const paraIdx = $('chatInput').dataset.paraIdx;
-    $('chatMessages').innerHTML += `<div class="flex justify-end"><div class="chat-bubble-user p-2 rounded-lg max-w-[80%]">${input}</div></div>`;
-    $('chatInput').value = ''; $('chatInput').dataset.paraIdx = '';
-    $('chatMessages').innerHTML += `<div class="flex justify-start"><div class="chat-bubble-ai p-2 rounded-lg max-w-[80%]" id="ai-reply">正在修改...</div></div>`;
-    $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
-    const ch = state.chapters[state.currentChapterIndex]; let sys;
-    if (paraIdx !== undefined) { const paras = ch.content.split('\n').filter(p => p.trim()); sys = `你是小说编辑助手。当前段落内容:\n"${paras[paraIdx]}"\n请根据用户的要求修改这个段落。直接输出修改后的段落，不要解释。`; } 
-    else { sys = `你是小说编辑助手。当前章节内容:\n${ch.content}\n请根据用户的要求修改这段内容。直接输出修改后的完整正文，不要输出摘要和解释。`; }
+// ================= AI Agent 逻辑 =================
+function refreshAgentBooks() {
+    const lib = JSON.parse(storage.get(STORAGE_KEY) || '[]');
+    $('agentBookSelect').innerHTML = '<option value="">选择小说...</option>';
+    lib.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id; opt.innerText = n.title;
+        $('agentBookSelect').appendChild(opt);
+    });
+    if (state.currentNovelId) $('agentBookSelect').value = state.currentNovelId;
+}
+function refreshAgentChapters() {
+    $('agentChapterSelect').innerHTML = '';
+    for(let i=0; i<state.chapters.length; i++) {
+        const opt = document.createElement('option');
+        opt.value = i; opt.innerText = `第 ${i+1} 章`;
+        $('agentChapterSelect').appendChild(opt);
+    }
+}
+function toggleAgentScopeFields() {
+    const scope = $('agentScopeSelect').value;
+    $('agentChapterSelect').classList.toggle('hidden', scope === 'whole');
+    $('agentParaInput').classList.toggle('hidden', scope !== 'paragraph');
+}
+ $('agentScopeSelect').addEventListener('change', toggleAgentScopeFields);
+ $('agentBookSelect').addEventListener('change', (e) => {
+    const id = e.target.value;
+    if (id) loadNovelForAgent(id);
+});
+ $('sendAgentBtn').addEventListener('click', async () => {
+    const input = $('agentInput').value.trim(); if (!input) return;
+    if (!state.currentNovelId) return showToast('请先在顶部选择一本小说');
+    
+    const bookId = $('agentBookSelect').value;
+    const scope = $('agentScopeSelect').value;
+    let context = '', sysPrompt = '', targetChapterIdx = -1, paraIdx = -1;
+
+    if (scope === 'whole') {
+        context = state.chapters.map(c => c.content).join('\n\n');
+        sysPrompt = `你是资深小说编辑与合著者 Agnes。用户当前选中的小说是《${state.title}》，文风为${state.style}。选中的范围是(整本书)。\n内容如下:\n${context}\n请根据用户的指令进行处理。直接输出修改后的完整内容，或者给出专业的解答。不要输出多余的解释。`;
+    } else if (scope === 'chapter') {
+        targetChapterIdx = parseInt($('agentChapterSelect').value);
+        context = state.chapters[targetChapterIdx].content;
+        sysPrompt = `你是资深小说编辑与合著者 Agnes。用户当前选中的小说是《${state.title}》，文风为${state.style}。选中的范围是(第${targetChapterIdx+1}章)。\n内容如下:\n${context}\n请根据用户的指令进行处理。直接输出修改后的完整正文，不要输出摘要和解释。`;
+    } else if (scope === 'paragraph') {
+        targetChapterIdx = parseInt($('agentChapterSelect').value);
+        paraIdx = parseInt($('agentParaInput').value) - 1;
+        const paras = state.chapters[targetChapterIdx].content.split('\n').filter(p => p.trim());
+        context = paras[paraIdx] || '段落不存在';
+        sysPrompt = `你是资深小说编辑与合著者 Agnes。用户当前选中的小说是《${state.title}》，文风为${state.style}。选中的范围是(第${targetChapterIdx+1}章 第${paraIdx+1}段)。\n段落内容如下:\n"${context}"\n请根据用户的指令修改这个段落。直接输出修改后的段落内容，不要解释。`;
+    }
+
+    $('agentMessages').innerHTML += `<div class="flex justify-end"><div class="chat-bubble-user p-3 rounded-lg max-w-[80%] text-sm">${input}</div></div>`;
+    $('agentMessages').innerHTML += `<div class="flex justify-start"><div class="chat-bubble-ai p-3 rounded-lg max-w-[80%] text-sm" id="ai-reply">正在思考...</div></div>`;
+    $('agentMessages').scrollTop = $('agentMessages').scrollHeight;
+    $('agentInput').value = '';
+
     try {
-        const fullText = await callTextAPIStream(sys, input, 0.6, (text) => { $('ai-reply').innerText = text; $('chatMessages').scrollTop = $('chatMessages').scrollHeight; });
-        $('ai-reply').innerText = '修改完成，已更新正文。';
-        if (paraIdx !== undefined) { let paras = ch.content.split('\n').filter(p => p.trim()); paras[paraIdx] = fullText; ch.content = paras.join('\n'); } 
-        else { ch.content = fullText; }
-        renderNovelContent(); saveNovelToLibrary();
-    } catch (e) { $('ai-reply').innerText = `修改失败: ${e.message}`; }
+        const fullText = await callTextAPIStream(sysPrompt, input, 0.6, (text) => {
+            $('ai-reply').innerText = text;
+            $('agentMessages').scrollTop = $('agentMessages').scrollHeight;
+        });
+        
+        // 添加应用到原书的按钮
+        const applyBtn = document.createElement('button');
+        applyBtn.className = 'mt-2 text-xs px-3 py-1 bg-green-600 text-white rounded-lg';
+        applyBtn.innerText = '✅ 应用此修改到原书';
+        applyBtn.onclick = () => {
+            if (scope === 'whole') {
+                // 这里简化处理，整本书修改不自动拆分章节，提示用户手动复制或仅做局部修改
+                showToast('整本书修改请手动复制，或选择特定章节/段落修改后应用。');
+                return;
+            }
+            if (scope === 'chapter') {
+                state.chapters[targetChapterIdx].content = fullText;
+            } else if (scope === 'paragraph') {
+                let paras = state.chapters[targetChapterIdx].content.split('\n').filter(p => p.trim());
+                paras[paraIdx] = fullText;
+                state.chapters[targetChapterIdx].content = paras.join('\n');
+            }
+            saveNovelToLibrary();
+            renderNovelContent();
+            showToast('修改已成功应用到原书！');
+            applyBtn.remove();
+        };
+        $('ai-reply').parentElement.appendChild(applyBtn);
+
+    } catch (e) { 
+        $('ai-reply').innerText = `执行失败: ${e.message}`; 
+    }
+});
+document.querySelectorAll('.quick-agent-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        $('agentInput').value = btn.innerText;
+        $('agentInput').focus();
+    });
 });
 
  $('editOutlineBtn').addEventListener('click', () => {
@@ -1006,7 +1133,6 @@ function shareWeb() {
     }
 }
 
-function applyTemplate(text) { $('themeInput').value = text; $('charactersInput').value = ''; $('suggestionBox').classList.add('hidden'); state.title = ''; }
  $('generateBtn').addEventListener('click', () => generateNovel(false));
 if($('generateBtnM')) $('generateBtnM').addEventListener('click', () => generateNovel(false));
 
@@ -1019,9 +1145,9 @@ if($('generateBtnM')) $('generateBtnM').addEventListener('click', () => generate
 
  $('navCreate').addEventListener('click', () => switchView('view-create'));
  $('navRead').addEventListener('click', () => switchView('view-read'));
+ $('navAgent').addEventListener('click', () => switchView('view-agent'));
  $('toggleMemoryBtn').addEventListener('click', () => $('memoryPanel').classList.toggle('translate-x-full'));
 
-// --- 移动端菜单逻辑 (加入 SVG 图标) ---
  $('mobileMenuBtn').addEventListener('click', () => {
     const btnClass = "flex flex-col items-center justify-center gap-1 p-3 bg-[var(--bg-main)] rounded-lg border border-[var(--border)] transition hover:scale-[1.02]";
     const html = `
@@ -1066,6 +1192,10 @@ if($('generateBtnM')) $('generateBtnM').addEventListener('click', () => generate
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                 导出TXT
             </button>
+            <button id="mAgent" class="${btnClass}">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                AI Agent
+            </button>
         </div>`;
     const overlay = showModal('工具与导出', html);
     overlay.querySelector('#mFontDec').onclick = () => { let s = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--reader-font-size')); if(s>1) document.documentElement.style.setProperty('--reader-font-size', (s-1)+'rem'); };
@@ -1078,6 +1208,7 @@ if($('generateBtnM')) $('generateBtnM').addEventListener('click', () => generate
     overlay.querySelector('#mShare').onclick = () => { overlay.remove(); shareWeb(); };
     overlay.querySelector('#mPdf').onclick = () => { overlay.remove(); exportPDF(); };
     overlay.querySelector('#mTxt').onclick = () => { overlay.remove(); exportTXT(); };
+    overlay.querySelector('#mAgent').onclick = () => { overlay.remove(); switchView('view-agent'); };
 });
 
  $('libraryBtn').addEventListener('click', showLibrary);
